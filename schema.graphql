@@ -1,17 +1,61 @@
-type Account @entity {
-  "Account address"
+type Block @entity {
+  "BlockHeight-blockHash - e.g. 0001812319-0001c"
   id: ID!
-  transfersTo: [Transfer!] @derivedFrom(field: "to")
-  transfersFrom: [Transfer!] @derivedFrom(field: "from")
+  height: Int! @index
+  hash: String! @index
+  parentHash: String! @index
+  timestamp: DateTime! @index
+  events: [Event]! @derivedFrom(field: "block")
+  extrinsics: [Extrinsic]! @derivedFrom(field: "block")
+  calls: [Call]! @derivedFrom(field: "block")
 }
 
-type Transfer @entity {
+type Event @entity {
+  "Event id - e.g. 0000000001-000000-272d6"
   id: ID!
+  block: Block!
   blockNumber: Int! @index
   timestamp: DateTime! @index
   extrinsicHash: String @index
-  from: Account!
-  to: Account!
-  amount: BigInt! @index
-  fee: BigInt! # fee is calculated at the best effort and may be zero for some old extrinsics
+  extrinsic: Extrinsic
+  indexInBlock: Int @index
+  name: String! @index
+  strArgs: String @index
 }
+type Extrinsic @entity {
+  id: ID!
+  block: Block!
+  call: Call
+  event: Event
+  blockNumber: Int! @index
+  timestamp: DateTime! @index
+  extrinsicHash: String @index
+  indexInBlock: Int! @index
+  version: Int! @index
+  signer: String @index
+  success: Boolean! @index
+  error: String
+  tip: BigInt
+  fee: BigInt @index
+}
+
+type Call @entity {
+  id: ID!
+  block: Block!
+  extrinsic: Extrinsic
+  extrinsicHash: String @index
+  blockNumber: Int! @index
+  timestamp: DateTime! @index
+  name: String! @index
+  success: Boolean! @index
+}
+
+#type ExtrinsicError @jsonField {
+#  kind: String!
+#  value: ExtrinsicErrorValue
+#}
+#
+#type ExtrinsicErrorValue @jsonField {
+#  error: String
+#  index: Int
+#}

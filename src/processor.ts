@@ -6,7 +6,6 @@ import {
   BatchBlock
 } from '@subsquid/substrate-processor';
 import { Store, TypeormDatabase } from '@subsquid/processor-tools';
-import { BalancesTransferEvent } from './types/events';
 import { getParsedEventsData } from './mappers/common';
 import { blocksHandler } from './mappers/blocks';
 import {

@@ -1,4 +1,4 @@
-import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, ManyToOne as ManyToOne_, Index as Index_} from "typeorm"
+import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, Index as Index_, ManyToOne as ManyToOne_} from "typeorm"
 import {Block} from "./block.model"
 import {Extrinsic} from "./extrinsic.model"
 
@@ -10,6 +10,10 @@ export class Call {
 
   @PrimaryColumn_()
   id!: string
+
+  @Index_()
+  @Column_("text", {nullable: true})
+  parentId!: string | undefined | null
 
   @Index_()
   @ManyToOne_(() => Block, {nullable: true})

@@ -1,4 +1,4 @@
-import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, ManyToOne as ManyToOne_, Index as Index_} from "typeorm"
+import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, ManyToOne as ManyToOne_, Index as Index_, OneToMany as OneToMany_} from "typeorm"
 import * as marshal from "./marshal"
 import {Block} from "./block.model"
 import {Call} from "./call.model"
@@ -17,13 +17,11 @@ export class Extrinsic {
   @ManyToOne_(() => Block, {nullable: true})
   block!: Block
 
-  @Index_()
-  @ManyToOne_(() => Call, {nullable: true})
-  call!: Call | undefined | null
+  @OneToMany_(() => Call, e => e.extrinsic)
+  calls!: Call[]
 
-  @Index_()
-  @ManyToOne_(() => Event, {nullable: true})
-  event!: Event | undefined | null
+  @OneToMany_(() => Event, e => e.extrinsic)
+  events!: Event[]
 
   @Index_()
   @Column_("int4", {nullable: false})

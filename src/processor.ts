@@ -15,6 +15,7 @@ const processor = new SubstrateBatchProcessor()
   .setDataSource({
     archive: lookupArchive('bifrost', { release: 'FireSquid' })
   })
+  // .setBatchSize(500)
   // .setBlockRange({ from: 14876953 })
   .addEvent('*', {
     data: {
@@ -135,7 +136,7 @@ processor.run(new TypeormDatabase({ disableAutoFlush: true }), async (ctx) => {
     );
     await ctx.store.flush();
     ctx.store.purge();
-  } else if ([...ctx.store.values(BlockEntity)].length > 1000) {
+  } else if ([...ctx.store.values(BlockEntity)].length > 5000) {
     ctx.log.info(
       `------------ Saved: ${
         [...ctx.store.values(BlockEntity)].length

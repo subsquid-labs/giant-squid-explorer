@@ -10,6 +10,8 @@ import {
 } from '../model';
 import { TransactionsQueueManager } from './transactionsQueueManager';
 import { Context } from './transactionsQueueManager';
+import { processorConfig } from '../config';
+import { KnownArchives } from '@subsquid/archive-registry';
 
 export function initProcessor(instanceConfig: {
   from: number;
@@ -23,7 +25,9 @@ export function initProcessor(instanceConfig: {
   }`;
   const instance = new SubstrateBatchProcessor()
     .setDataSource({
-      archive: lookupArchive('bifrost', { release: 'FireSquid' })
+      archive: lookupArchive(processorConfig.chainName as KnownArchives, {
+        release: 'FireSquid'
+      })
     })
     .setPrometheusPort(instanceConfig.promPort)
     .setBlockRange({
@@ -56,15 +60,6 @@ export function initProcessor(instanceConfig: {
     }),
     async (ctx) => {
       instanceConfig.txQueueManager.setContext(ctx as Context);
-
-      const threadsStats = new ProcessingThreadsStats({
-        id: instanceConfig.index.toString(),
-        from: instanceConfig.from,
-        to: instanceConfig.to ?? null,
-        threadLastBlock: instanceConfig.from,
-        threadProgress: 0
-      });
-      ctx.store.deferredUpsert(threadsStats);
 
       for (let block of ctx.blocks) {
         const currentBlock = new BlockEntity({
@@ -158,14 +153,20 @@ export function initProcessor(instanceConfig: {
       const lastBlockHeightInBatch =
         ctx.blocks[ctx.blocks.length - 1].header.height;
 
-      threadsStats.threadLastBlock = lastBlockHeightInBatch;
-      threadsStats.threadProgress = instanceConfig.to
-        ? getRangeStatus(
-            instanceConfig.from,
-            instanceConfig.to,
-            lastBlockHeightInBatch
-          )
-        : 0;
+      const threadsStats = new ProcessingThreadsStats({
+        id: instanceConfig.index.toString(),
+        from: instanceConfig.from,
+        to: instanceConfig.to ?? null,
+        threadLastBlock: lastBlockHeightInBatch,
+        threadProgress: instanceConfig.to
+          ? getRangeStatus(
+              instanceConfig.from,
+              instanceConfig.to,
+              lastBlockHeightInBatch
+            )
+          : 0,
+        threadProcessedBlocksCount: lastBlockHeightInBatch - instanceConfig.from
+      });
       ctx.store.deferredUpsert(threadsStats);
 
       if (

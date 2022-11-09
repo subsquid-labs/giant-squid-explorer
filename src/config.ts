@@ -1,13 +1,13 @@
 
 
 export const processorConfig = {
-  chainName: 'bifrost',
-  prefix: 'bifrost',
+  chainName: 'kusama',
+  prefix: 'kusama',
   dataSource: {
-    archive: 'https://bifrost.archive.subsquid.io/graphql',
+    archive: 'https://kusama.archive.subsquid.io/graphql',
     chain: 'wss://kusama-rpc.polkadot.io'
   },
-  typesBundle: 'bifrost',
+  typesBundle: 'kusama',
   blockRange: {
     from: 100000
   }

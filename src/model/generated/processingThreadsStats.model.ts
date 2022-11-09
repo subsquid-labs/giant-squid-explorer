@@ -23,4 +23,7 @@ export class ProcessingThreadsStats {
 
   @Column_("int4", {nullable: false})
   threadProgress!: number
+
+  @Column_("int4", {nullable: false})
+  threadProcessedBlocksCount!: number
 }

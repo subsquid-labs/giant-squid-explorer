@@ -5,6 +5,7 @@ type ProcessingThreadsStats @entity {
   to: Int
   threadLastBlock: Int!
   threadProgress: Int!
+  threadProcessedBlocksCount: Int!
 }
 
 type Block @entity {

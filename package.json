@@ -9,8 +9,7 @@
     "db:migrate": "npx squid-typeorm-migration apply",
     "db:reset": ". ./scripts/reset-db.sh",
     "db:soft-reset": ". ./scripts/soft-reset-db.sh",
-    "processor:start": "node lib/processor.js",
-    "processor:start:all": "concurrently --kill-others-on-fail -g -c cyan,magenta,yellow -r \"node lib/processors/processor-1.js\" \"node lib/processors/processor-2.js\" \"node lib/processors/processor-3.js\"",
+    "processor:start": "concurrently --kill-others-on-fail -g -c cyan,magenta,yellow \"node lib/processors/processor-1.js\" \"node lib/processors/processor-2.js\" \"node lib/processors/processor-3.js\"",
     "query-node:start": "squid-graphql-server --subscriptions --max-response-size 10000 --dumb-cache in-memory --dumb-cache-ttl 1000 --dumb-cache-size 100 --dumb-cache-max-age 1000"
   },
   "dependencies": {

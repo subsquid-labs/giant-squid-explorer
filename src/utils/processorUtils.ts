@@ -1,14 +1,22 @@
 import { SubstrateBatchProcessor } from '@subsquid/substrate-processor';
 import { lookupArchive } from '@subsquid/archive-registry';
 import { TypeormDatabase } from '@subsquid/processor-tools';
-import { Block as BlockEntity, Call, Event, Extrinsic } from '../model';
-import TransactionsQueueManager from './transactionsQueueManager';
+import {
+  Block as BlockEntity,
+  Call,
+  Event,
+  Extrinsic,
+  ProcessingThreadsStats
+} from '../model';
+import { TransactionsQueueManager } from './transactionsQueueManager';
+import { Context } from './transactionsQueueManager';
 
 export function initProcessor(instanceConfig: {
   from: number;
   to?: number | undefined;
   promPort: number;
-  txQueueManager: typeof TransactionsQueueManager;
+  index: number;
+  txQueueManager: TransactionsQueueManager;
 }) {
   const stateSchemaName = `processing_thread_${instanceConfig.from}_${
     instanceConfig.to ? instanceConfig.to : 'inf'
@@ -47,6 +55,17 @@ export function initProcessor(instanceConfig: {
       disableAutoFlush: true
     }),
     async (ctx) => {
+      instanceConfig.txQueueManager.setContext(ctx as Context);
+
+      const threadsStats = new ProcessingThreadsStats({
+        id: instanceConfig.index.toString(),
+        from: instanceConfig.from,
+        to: instanceConfig.to ?? null,
+        threadLastBlock: instanceConfig.from,
+        threadProgress: 0
+      });
+      ctx.store.deferredUpsert(threadsStats);
+
       for (let block of ctx.blocks) {
         const currentBlock = new BlockEntity({
           id: block.header.id,
@@ -136,49 +155,48 @@ export function initProcessor(instanceConfig: {
         }
       }
 
-      ctx.log.child('processor').info(stateSchemaName);
+      const lastBlockHeightInBatch =
+        ctx.blocks[ctx.blocks.length - 1].header.height;
+
+      threadsStats.threadLastBlock = lastBlockHeightInBatch;
+      threadsStats.threadProgress = instanceConfig.to
+        ? getRangeStatus(
+            instanceConfig.from,
+            instanceConfig.to,
+            lastBlockHeightInBatch
+          )
+        : 0;
+      ctx.store.deferredUpsert(threadsStats);
 
       if (
         ctx.blocks.length === 1 ||
-        (instanceConfig.to &&
-          ctx.blocks[ctx.blocks.length - 1].header.height === instanceConfig.to)
+        (instanceConfig.to && lastBlockHeightInBatch === instanceConfig.to)
       ) {
         await instanceConfig.txQueueManager.executeInQueue(async () => {
-          ctx.log
-            // .child(
-            //   `proc__${procItemConf[0]}-${
-            //     procItemConf[1] ? procItemConf[1] : 'inf'
-            //   }`
-            // )
-            .info(
-              `------------ ${stateSchemaName} :: Saved: ${
-                [...ctx.store.values(BlockEntity)].length
-              } Blocks | ${
-                [...ctx.store.values(Extrinsic)].length
-              } extrinsics | ${[...ctx.store.values(Call)].length} calls | ${
-                [...ctx.store.values(Event)].length
-              } events ------------ `
-            );
+          ctx.log.info(
+            `------------ ${stateSchemaName} :: Saved: ${
+              [...ctx.store.values(BlockEntity)].length
+            } Blocks | ${
+              [...ctx.store.values(Extrinsic)].length
+            } extrinsics | ${[...ctx.store.values(Call)].length} calls | ${
+              [...ctx.store.values(Event)].length
+            } events ------------ `
+          );
+
           await ctx.store.flush();
           ctx.store.purge();
         });
       } else if ([...ctx.store.values(BlockEntity)].length > 5000) {
         await instanceConfig.txQueueManager.executeInQueue(async () => {
-          ctx.log
-            // .child(
-            //   `proc__${procItemConf[0]}-${
-            //     procItemConf[1] ? procItemConf[1] : 'inf'
-            //   }`
-            // )
-            .info(
-              `------------ ${stateSchemaName} :: Saved: ${
-                [...ctx.store.values(BlockEntity)].length
-              } Blocks | ${
-                [...ctx.store.values(Extrinsic)].length
-              } extrinsics | ${[...ctx.store.values(Call)].length} calls | ${
-                [...ctx.store.values(Event)].length
-              } events ------------ `
-            );
+          ctx.log.info(
+            `------------ ${stateSchemaName} :: Saved: ${
+              [...ctx.store.values(BlockEntity)].length
+            } Blocks | ${
+              [...ctx.store.values(Extrinsic)].length
+            } extrinsics | ${[...ctx.store.values(Call)].length} calls | ${
+              [...ctx.store.values(Event)].length
+            } events ------------ `
+          );
           await ctx.store.flush();
           ctx.store.purge();
         });
@@ -187,4 +205,8 @@ export function initProcessor(instanceConfig: {
   );
 
   return instance;
+}
+
+function getRangeStatus(from: number, to: number, current: number): number {
+  return Math.round(((current - from) * 100) / (to - from));
 }

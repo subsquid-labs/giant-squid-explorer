@@ -1,9 +1,13 @@
 import { initProcessor } from '../utils/processorUtils';
-import TransactionsQueueManager from '../utils/transactionsQueueManager';
+import { TransactionsQueueManager } from '../utils/transactionsQueueManager';
 
 const processorInstance = initProcessor({
-  from: 0,
-  to: 1000000,
-  promPort: 3001,
-  txQueueManager: TransactionsQueueManager
+  from: 750000,
+  to: 1500000,
+  promPort: 3002,
+  index: 1,
+  txQueueManager: TransactionsQueueManager.getInstance({
+    connectName: 'sqd-processor-1',
+    subscribers: ['sqd-processor-0', 'sqd-processor-2', 'sqd-processor-3']
+  })
 });

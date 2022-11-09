@@ -9,7 +9,7 @@
     "db:migrate": "npx squid-typeorm-migration apply",
     "db:reset": ". ./scripts/reset-db.sh",
     "db:soft-reset": ". ./scripts/soft-reset-db.sh",
-    "processor:start": "concurrently --kill-others-on-fail -g -c cyan,magenta,yellow \"node lib/processors/processor-1.js\" \"node lib/processors/processor-2.js\" \"node lib/processors/processor-3.js\"",
+    "processor:start": "concurrently --kill-others-on-fail -g -c cyan,magenta,yellow -r \"node lib/processors/processor-0.js\" \"node lib/processors/processor-1.js\" \"node lib/processors/processor-2.js\" \"node lib/processors/processor-3.js\"",
     "query-node:start": "squid-graphql-server --subscriptions --max-response-size 10000 --dumb-cache in-memory --dumb-cache-ttl 1000 --dumb-cache-size 100 --dumb-cache-max-age 1000"
   },
   "dependencies": {
@@ -22,6 +22,7 @@
     "@subsquid/typeorm-store": "0.1.5",
     "concurrently": "^7.5.0",
     "dotenv": "^10.0.0",
+    "node-ipc": "^11.1.0",
     "pg": "8.8.0",
     "typeorm": "0.3.9",
     "uuid": "^9.0.0"
@@ -31,6 +32,7 @@
     "@subsquid/substrate-typegen": "1.4.2",
     "@subsquid/typeorm-codegen": "0.2.2",
     "@types/node": "16.11.56",
+    "@types/node-ipc": "^9.2.0",
     "@types/uuid": "^8.3.4",
     "prettier": "^2.7.1",
     "typescript": "4.8.2"

@@ -1,3 +1,12 @@
+type ProcessingThreadsStats @entity {
+  "Thread index"
+  id: ID!
+  from: Int!
+  to: Int
+  threadLastBlock: Int!
+  threadProgress: Int!
+}
+
 type Block @entity {
   "BlockHeight-blockHash - e.g. 0001812319-0001c"
   id: ID!

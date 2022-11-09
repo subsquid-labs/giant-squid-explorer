@@ -1,7 +1,8 @@
-module.exports = class Data1668008981304 {
-  name = 'Data1668008981304'
+module.exports = class Data1668026315729 {
+  name = 'Data1668026315729'
 
   async up(db) {
+    await db.query(`CREATE TABLE "processing_threads_stats" ("id" character varying NOT NULL, "from" integer NOT NULL, "to" integer, "thread_last_block" integer NOT NULL, "thread_progress" integer NOT NULL, CONSTRAINT "PK_33564a6807b86d76ccf7454c67f" PRIMARY KEY ("id"))`)
     await db.query(`CREATE TABLE "call" ("id" character varying NOT NULL, "parent_id" text, "extrinsic_hash" text, "block_number" integer NOT NULL, "timestamp" TIMESTAMP WITH TIME ZONE NOT NULL, "name" text NOT NULL, "success" boolean NOT NULL, "block_id" character varying, "extrinsic_id" character varying, CONSTRAINT "PK_2098af0169792a34f9cfdd39c47" PRIMARY KEY ("id"))`)
     await db.query(`CREATE INDEX "IDX_11c1e76d5be8f04c472c4a05b9" ON "call" ("parent_id") `)
     await db.query(`CREATE INDEX "IDX_bd3f11fd4110d60ac8b96cd62f" ON "call" ("block_id") `)
@@ -43,6 +44,7 @@ module.exports = class Data1668008981304 {
   }
 
   async down(db) {
+    await db.query(`DROP TABLE "processing_threads_stats"`)
     await db.query(`DROP TABLE "call"`)
     await db.query(`DROP INDEX "public"."IDX_11c1e76d5be8f04c472c4a05b9"`)
     await db.query(`DROP INDEX "public"."IDX_bd3f11fd4110d60ac8b96cd62f"`)

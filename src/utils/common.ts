@@ -10,7 +10,7 @@ import {
 import * as ss58 from '@subsquid/ss58';
 import { decodeHex } from '@subsquid/util-internal-hex';
 import { processorConfig } from '../config';
-import { Block } from '../processor';
+// import { Block } from '../processor';
 
 const ss58codec = ss58.codec(processorConfig.prefix);
 
@@ -37,3 +37,5 @@ export class ParsedChainDataScope {
 // export function decodeAccount(id: string) {
 //   return ss58codec.decode(id);
 // }
+
+

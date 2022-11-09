@@ -6,7 +6,7 @@ import {
   BatchBlock
 } from '@subsquid/substrate-processor';
 import { Store, TypeormDatabase } from '@subsquid/processor-tools';
-import { Block as BlockEntity, Call, Event, Extrinsic } from './model';
+import { Block as BlockEntity, Call, Event, Extrinsic } from '../model';
 
 import { SubstrateExtrinsic } from '@subsquid/substrate-processor/src/interfaces/substrate';
 type ExtrinsicScalars = Omit<SubstrateExtrinsic, 'call'>;
@@ -16,13 +16,7 @@ type ExtrinsicScalars = Omit<SubstrateExtrinsic, 'call'>;
 // export type Block = BatchBlock<Item>;
 
 // 2_861_981
-const parallelBatchesConfig = [
-  [0, 600000, 3001],
-  [600001, 1200000, 3002],
-  [1200001, 1800000, 3003],
-  [1800001, 240000, 3004],
-  [240001, 0, 3000]
-];
+const parallelBatchesConfig = [[1800001, 240000, 3004]];
 // const parallelBatchesConfig = [[0, 10000, 3000]];
 const processorItemsList: {
   procItemConf: number[];

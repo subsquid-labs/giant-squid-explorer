@@ -169,39 +169,39 @@ export function initProcessor(instanceConfig: {
       });
       ctx.store.deferredUpsert(threadsStats);
 
-      if (
-        ctx.blocks.length === 1 ||
-        (instanceConfig.to && lastBlockHeightInBatch === instanceConfig.to)
-      ) {
-        await instanceConfig.txQueueManager.executeInQueue(async () => {
-          ctx.log.info(
-            `------------ ${stateSchemaName} :: Saved: ${
-              [...ctx.store.values(BlockEntity)].length
-            } Blocks | ${
-              [...ctx.store.values(Extrinsic)].length
-            } extrinsics | ${[...ctx.store.values(Call)].length} calls | ${
-              [...ctx.store.values(Event)].length
-            } events ------------ `
-          );
+      ctx.log.info(
+        `------------ ${stateSchemaName} :: batch size ${
+          ctx.blocks.length
+        } :: Saved: ${[...ctx.store.values(BlockEntity)].length} Blocks | ${
+          [...ctx.store.values(Extrinsic)].length
+        } extrinsics | ${[...ctx.store.values(Call)].length} calls | ${
+          [...ctx.store.values(Event)].length
+        } events ------------ `
+      );
 
-          await ctx.store.flush();
-          ctx.store.purge();
-        });
-      } else if ([...ctx.store.values(BlockEntity)].length > 5000) {
-        await instanceConfig.txQueueManager.executeInQueue(async () => {
-          ctx.log.info(
-            `------------ ${stateSchemaName} :: Saved: ${
-              [...ctx.store.values(BlockEntity)].length
-            } Blocks | ${
-              [...ctx.store.values(Extrinsic)].length
-            } extrinsics | ${[...ctx.store.values(Call)].length} calls | ${
-              [...ctx.store.values(Event)].length
-            } events ------------ `
-          );
-          await ctx.store.flush();
-          ctx.store.purge();
-        });
-      }
+      await ctx.store.flush();
+      ctx.store.purge();
+
+      // if (
+      //   ctx.blocks.length === 1 ||
+      //   (instanceConfig.to && lastBlockHeightInBatch === instanceConfig.to) ||
+      //   [...ctx.store.values(BlockEntity)].length > 5000
+      // ) {
+      //   await instanceConfig.txQueueManager.executeInQueue(async () => {
+      //     ctx.log.info(
+      //       `------------ ${stateSchemaName} :: Saved: ${
+      //         [...ctx.store.values(BlockEntity)].length
+      //       } Blocks | ${
+      //         [...ctx.store.values(Extrinsic)].length
+      //       } extrinsics | ${[...ctx.store.values(Call)].length} calls | ${
+      //         [...ctx.store.values(Event)].length
+      //       } events ------------ `
+      //     );
+      //
+      //     await ctx.store.flush();
+      //     ctx.store.purge();
+      //   });
+      // }
     }
   );
 

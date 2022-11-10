@@ -169,19 +169,22 @@ export function initProcessor(instanceConfig: {
       });
       ctx.store.deferredUpsert(threadsStats);
 
-      ctx.log.info(
-        `------------ ${stateSchemaName} :: batch size ${
-          ctx.blocks.length
-        } :: Saved: ${[...ctx.store.values(BlockEntity)].length} Blocks | ${
-          [...ctx.store.values(Extrinsic)].length
-        } extrinsics | ${[...ctx.store.values(Call)].length} calls | ${
-          [...ctx.store.values(Event)].length
-        } events ------------ `
-      );
+      await instanceConfig.txQueueManager.executeInQueue(async () => {
+        ctx.log.info(
+          `------------ ${stateSchemaName} :: batch size ${
+            ctx.blocks.length
+          } :: Saved: ${[...ctx.store.values(BlockEntity)].length} Blocks | ${
+            [...ctx.store.values(Extrinsic)].length
+          } extrinsics | ${[...ctx.store.values(Call)].length} calls | ${
+            [...ctx.store.values(Event)].length
+          } events ------------ `
+        );
 
-      await ctx.store.flush();
-      ctx.store.purge();
+        await ctx.store.flush();
+        ctx.store.purge();
+      });
 
+      //
       // if (
       //   ctx.blocks.length === 1 ||
       //   (instanceConfig.to && lastBlockHeightInBatch === instanceConfig.to) ||
@@ -189,9 +192,9 @@ export function initProcessor(instanceConfig: {
       // ) {
       //   await instanceConfig.txQueueManager.executeInQueue(async () => {
       //     ctx.log.info(
-      //       `------------ ${stateSchemaName} :: Saved: ${
-      //         [...ctx.store.values(BlockEntity)].length
-      //       } Blocks | ${
+      //       `------------ ${stateSchemaName} :: batch size ${
+      //         ctx.blocks.length
+      //       } :: Saved: ${[...ctx.store.values(BlockEntity)].length} Blocks | ${
       //         [...ctx.store.values(Extrinsic)].length
       //       } extrinsics | ${[...ctx.store.values(Call)].length} calls | ${
       //         [...ctx.store.values(Event)].length

@@ -56,7 +56,9 @@ export function initProcessor(instanceConfig: {
   instance.run(
     new TypeormDatabase({
       stateSchema: stateSchemaName,
-      disableAutoFlush: true
+      disableAutoFlush: true,
+      disableAutoTxCommit: true,
+      disableAutoHeightUpdate: true
     }),
     async (ctx) => {
       instanceConfig.txQueueManager.setContext(ctx as Context);
@@ -169,42 +171,42 @@ export function initProcessor(instanceConfig: {
       });
       ctx.store.deferredUpsert(threadsStats);
 
-      await instanceConfig.txQueueManager.executeInQueue(async () => {
-        ctx.log.info(
-          `------------ ${stateSchemaName} :: batch size ${
-            ctx.blocks.length
-          } :: Saved: ${[...ctx.store.values(BlockEntity)].length} Blocks | ${
-            [...ctx.store.values(Extrinsic)].length
-          } extrinsics | ${[...ctx.store.values(Call)].length} calls | ${
-            [...ctx.store.values(Event)].length
-          } events ------------ `
-        );
-
-        await ctx.store.flush();
-        ctx.store.purge();
-      });
-
+      // await instanceConfig.txQueueManager.executeInQueue(async () => {
+      //   ctx.log.info(
+      //     `------------ ${stateSchemaName} :: batch size ${
+      //       ctx.blocks.length
+      //     } :: Saved: ${[...ctx.store.values(BlockEntity)].length} Blocks | ${
+      //       [...ctx.store.values(Extrinsic)].length
+      //     } extrinsics | ${[...ctx.store.values(Call)].length} calls | ${
+      //       [...ctx.store.values(Event)].length
+      //     } events ------------ `
+      //   );
       //
-      // if (
-      //   ctx.blocks.length === 1 ||
-      //   (instanceConfig.to && lastBlockHeightInBatch === instanceConfig.to) ||
-      //   [...ctx.store.values(BlockEntity)].length > 5000
-      // ) {
-      //   await instanceConfig.txQueueManager.executeInQueue(async () => {
-      //     ctx.log.info(
-      //       `------------ ${stateSchemaName} :: batch size ${
-      //         ctx.blocks.length
-      //       } :: Saved: ${[...ctx.store.values(BlockEntity)].length} Blocks | ${
-      //         [...ctx.store.values(Extrinsic)].length
-      //       } extrinsics | ${[...ctx.store.values(Call)].length} calls | ${
-      //         [...ctx.store.values(Event)].length
-      //       } events ------------ `
-      //     );
-      //
-      //     await ctx.store.flush();
-      //     ctx.store.purge();
-      //   });
-      // }
+      //   await ctx.store.flush();
+      //   ctx.store.purge();
+      // });
+
+      if (
+        ctx.blocks.length === 1 ||
+        (instanceConfig.to && lastBlockHeightInBatch === instanceConfig.to) ||
+        [...ctx.store.values(BlockEntity)].length > 3000
+      ) {
+        await instanceConfig.txQueueManager.executeInQueue(async () => {
+          ctx.log.info(
+            `------------ ${stateSchemaName} :: batch size ${
+              ctx.blocks.length
+            } :: Saved: ${[...ctx.store.values(BlockEntity)].length} Blocks | ${
+              [...ctx.store.values(Extrinsic)].length
+            } extrinsics | ${[...ctx.store.values(Call)].length} calls | ${
+              [...ctx.store.values(Event)].length
+            } events ------------ `
+          );
+
+          await ctx.store.flush();
+          ctx.store.purge();
+          await ctx.store.UNSAFE_commitTransaction();
+        });
+      }
     }
   );
 

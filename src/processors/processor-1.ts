@@ -2,8 +2,8 @@ import { initProcessor } from '../utils/processorUtils';
 import { TransactionsQueueManager } from '../utils/transactionsQueueManager';
 
 const processorInstance = initProcessor({
-  from: 750000,
-  to: 1500000,
+  from: 100000,
+  to: 200000,
   promPort: 3002,
   index: 1,
   txQueueManager: TransactionsQueueManager.getInstance({

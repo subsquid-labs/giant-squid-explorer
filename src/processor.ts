@@ -40,7 +40,6 @@ export type Ctx = BatchContext<Store, Item>;
 export type Block = BatchBlock<Item>;
 
 processor.run(new TypeormDatabase({ disableAutoFlush: true }), async (ctx) => {
-
   for (let block of ctx.blocks) {
     const currentBlock = new BlockEntity({
       id: block.header.id,
@@ -126,25 +125,28 @@ processor.run(new TypeormDatabase({ disableAutoFlush: true }), async (ctx) => {
     }
   }
 
-  if (ctx.blocks.length === 1) {
-    ctx.log.info(
-      `------------ Saved: ${
-        [...ctx.store.values(BlockEntity)].length
-      } Blocks | ${[...ctx.store.values(Extrinsic)].length} extrinsics | ${
-        [...ctx.store.values(Call)].length
-      } calls | ${[...ctx.store.values(Event)].length} events ------------ `
-    );
-    await ctx.store.flush();
-    ctx.store.purge();
-  } else if ([...ctx.store.values(BlockEntity)].length > 5000) {
-    ctx.log.info(
-      `------------ Saved: ${
-        [...ctx.store.values(BlockEntity)].length
-      } Blocks | ${[...ctx.store.values(Extrinsic)].length} extrinsics | ${
-        [...ctx.store.values(Call)].length
-      } calls | ${[...ctx.store.values(Event)].length} events ------------ `
-    );
-    await ctx.store.flush();
-    ctx.store.purge();
-  }
+  // if (
+  //   ctx.blocks.length === 1 ||
+  //   [...ctx.store.values(BlockEntity)].length > 5000
+  // ) {
+  //   ctx.log.info(
+  //     `------------ batch size - ${ctx.blocks.length} :: Saved: ${
+  //       [...ctx.store.values(BlockEntity)].length
+  //     } Blocks | ${[...ctx.store.values(Extrinsic)].length} extrinsics | ${
+  //       [...ctx.store.values(Call)].length
+  //     } calls | ${[...ctx.store.values(Event)].length} events ------------ `
+  //   );
+  //   await ctx.store.flush();
+  //   ctx.store.purge();
+  // }
+
+  ctx.log.info(
+    `------------ batch size - ${ctx.blocks.length} :: Saved: ${
+      [...ctx.store.values(BlockEntity)].length
+    } Blocks | ${[...ctx.store.values(Extrinsic)].length} extrinsics | ${
+      [...ctx.store.values(Call)].length
+    } calls | ${[...ctx.store.values(Event)].length} events ------------ `
+  );
+  await ctx.store.flush();
+  ctx.store.purge();
 });

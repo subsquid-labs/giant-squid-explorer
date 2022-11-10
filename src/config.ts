@@ -1,13 +1,13 @@
 
 
 export const processorConfig = {
-  chainName: 'bifrost',
-  prefix: 'bifrost',
+  chainName: 'gmordie',
+  prefix: 'gmordie',
   dataSource: {
-    archive: 'https://bifrost.archive.subsquid.io/graphql',
+    archive: 'https://gmordie.archive.subsquid.io/graphql',
     chain: 'wss://kusama-rpc.polkadot.io'
   },
-  typesBundle: 'bifrost',
+  typesBundle: 'gmordie',
   blockRange: {
     from: 100000
   }

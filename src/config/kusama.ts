@@ -10,7 +10,30 @@ const config: ProcessorConfig = {
     },
     batchSizeSaveThreshold: 3000
   },
-  threadsList: []
+  threadsList: [
+    {
+      index: 0,
+      from: 0,
+      to: 4000000,
+      retriesLimit: 5,
+      prometheusPort: 3001
+    },
+    {
+      index: 1,
+      from: 4000000,
+      to: 8000000,
+      retriesLimit: 5,
+      prometheusPort: 3002
+    },
+    {
+      index: 2,
+      from: 8000000,
+      to: 12000000,
+      retriesLimit: 5,
+      prometheusPort: 3003
+    },
+    { index: 3, from: 12000000, retriesLimit: -1, prometheusPort: 3000 }
+  ]
 };
 
 export default config;

@@ -18,7 +18,7 @@ export function initProcessor(instanceConfig: {
   to?: number | undefined;
   promPort: number;
   index: number;
-  txQueueManager: TransactionsQueueManager;
+  // txQueueManager: TransactionsQueueManager;
 }) {
   const stateSchemaName = `processing_thread_${instanceConfig.from}_${
     instanceConfig.to ? instanceConfig.to : 'inf'
@@ -56,12 +56,13 @@ export function initProcessor(instanceConfig: {
   instance.run(
     new TypeormDatabase({
       stateSchema: stateSchemaName,
+      isolationLevel: 'READ COMMITTED',
       disableAutoFlush: true,
       disableAutoTxCommit: true,
       disableAutoHeightUpdate: true
     }),
     async (ctx) => {
-      instanceConfig.txQueueManager.setContext(ctx as Context);
+      // instanceConfig.txQueueManager.setContext(ctx as Context);
 
       for (let block of ctx.blocks) {
         const currentBlock = new BlockEntity({
@@ -80,22 +81,22 @@ export function initProcessor(instanceConfig: {
               // @ts-ignore
               const { id, name, indexInBlock, extrinsic } = item.event;
 
-              const newEvent = new Event({
-                id,
-                block: currentBlock,
-                blockNumber: currentBlock.height,
-                timestamp: currentBlock.timestamp,
-                indexInBlock: indexInBlock ?? null,
-                name
-              });
-
-              if (extrinsic) {
-                // @ts-ignore
-                newEvent.extrinsic = { id: extrinsic.id };
-                newEvent.extrinsicHash = extrinsic.hash;
-              }
-
-              ctx.store.deferredUpsert(newEvent);
+              // const newEvent = new Event({
+              //   id,
+              //   block: currentBlock,
+              //   blockNumber: currentBlock.height,
+              //   timestamp: currentBlock.timestamp,
+              //   indexInBlock: indexInBlock ?? null,
+              //   name
+              // });
+              //
+              // if (extrinsic) {
+              //   // @ts-ignore
+              //   newEvent.extrinsic = { id: extrinsic.id };
+              //   newEvent.extrinsicHash = extrinsic.hash;
+              // }
+              //
+              // ctx.store.deferredUpsert(newEvent);
               break;
             }
             case 'call': {
@@ -113,37 +114,37 @@ export function initProcessor(instanceConfig: {
                 signer = extrinsic.signature.address.value;
               }
 
-              const newExtrinsic = new Extrinsic({
-                // @ts-ignore
-                id: item.extrinsic.id,
-                block: currentBlock,
-                blockNumber: currentBlock.height,
-                timestamp: currentBlock.timestamp,
-                extrinsicHash: extrinsic.hash,
-                indexInBlock: extrinsic.indexInBlock,
-                version: extrinsic.version,
-                signer,
-                error: extrinsic.error ? JSON.stringify(extrinsic.error) : null,
-                success: extrinsic.success,
-                tip: extrinsic.tip,
-                fee: extrinsic.fee
-              });
-
-              const newCall = new Call({
-                id: item.call.id,
-                name: item.call.name,
-                // @ts-ignore
-                parentId: item.call.parent ? item.call.parent.id : null,
-                blockNumber: currentBlock.height,
-                timestamp: currentBlock.timestamp,
-                block: currentBlock,
-                extrinsic: newExtrinsic,
-                extrinsicHash: newExtrinsic.extrinsicHash,
-                success: extrinsic.success
-              });
-
-              ctx.store.deferredUpsert(newExtrinsic);
-              ctx.store.deferredUpsert(newCall);
+              // const newExtrinsic = new Extrinsic({
+              //   // @ts-ignore
+              //   id: item.extrinsic.id,
+              //   block: currentBlock,
+              //   blockNumber: currentBlock.height,
+              //   timestamp: currentBlock.timestamp,
+              //   extrinsicHash: extrinsic.hash,
+              //   indexInBlock: extrinsic.indexInBlock,
+              //   version: extrinsic.version,
+              //   signer,
+              //   error: extrinsic.error ? JSON.stringify(extrinsic.error) : null,
+              //   success: extrinsic.success,
+              //   tip: extrinsic.tip,
+              //   fee: extrinsic.fee
+              // });
+              //
+              // const newCall = new Call({
+              //   id: item.call.id,
+              //   name: item.call.name,
+              //   // @ts-ignore
+              //   parentId: item.call.parent ? item.call.parent.id : null,
+              //   blockNumber: currentBlock.height,
+              //   timestamp: currentBlock.timestamp,
+              //   block: currentBlock,
+              //   extrinsic: newExtrinsic,
+              //   extrinsicHash: newExtrinsic.extrinsicHash,
+              //   success: extrinsic.success
+              // });
+              //
+              // ctx.store.deferredUpsert(newExtrinsic);
+              // ctx.store.deferredUpsert(newCall);
 
               break;
             }
@@ -187,25 +188,34 @@ export function initProcessor(instanceConfig: {
       // });
 
       if (
+        instanceConfig.to &&
+        lastBlockHeightInBatch > instanceConfig.to - 5000
+      ) {
+        console.log(
+          `---${stateSchemaName} lastBlockHeightInBatch - ${lastBlockHeightInBatch} ctx.blocks.length - ${ctx.blocks.length}`
+        );
+      }
+
+      if (
         ctx.blocks.length === 1 ||
         (instanceConfig.to && lastBlockHeightInBatch === instanceConfig.to) ||
         [...ctx.store.values(BlockEntity)].length > 3000
       ) {
-        await instanceConfig.txQueueManager.executeInQueue(async () => {
-          ctx.log.info(
-            `------------ ${stateSchemaName} :: batch size ${
-              ctx.blocks.length
-            } :: Saved: ${[...ctx.store.values(BlockEntity)].length} Blocks | ${
-              [...ctx.store.values(Extrinsic)].length
-            } extrinsics | ${[...ctx.store.values(Call)].length} calls | ${
-              [...ctx.store.values(Event)].length
-            } events ------------ `
-          );
+        // await instanceConfig.txQueueManager.executeInQueue(async () => {
+        ctx.log.info(
+          `------------ ${stateSchemaName} :: batch size ${
+            ctx.blocks.length
+          } :: Saved: ${[...ctx.store.values(BlockEntity)].length} Blocks | ${
+            [...ctx.store.values(Extrinsic)].length
+          } extrinsics | ${[...ctx.store.values(Call)].length} calls | ${
+            [...ctx.store.values(Event)].length
+          } events ------------ `
+        );
 
-          await ctx.store.flush();
-          ctx.store.purge();
-          await ctx.store.UNSAFE_commitTransaction();
-        });
+        await ctx.store.flush();
+        ctx.store.purge();
+        await ctx.store.UNSAFE_commitTransaction();
+        // });
       }
     }
   );

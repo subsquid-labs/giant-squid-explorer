@@ -68,5 +68,8 @@ if (chainArg) {
 
   runProcessor(thread, chainConfig.srcConfig);
 } else {
+  logger.info(
+    `Starting processing for "${chainConfig.srcConfig.chainName}" chain with in ${chainConfig.threadsList.length} thread(s).`
+  );
   chainConfig.threadsList.forEach(runProcessorInIsolatedProcess);
 }

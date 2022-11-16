@@ -10,7 +10,6 @@ const config: ProcessorConfig = {
     },
     batchSizeSaveThreshold: 3000
   },
-  threadsList: []
 };
 
 export default config;

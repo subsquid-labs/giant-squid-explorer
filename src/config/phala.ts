@@ -9,8 +9,7 @@ const config: ProcessorConfig = {
       chain: 'wss://api.phala.network/ws'
     },
     batchSizeSaveThreshold: 3000
-  },
-  threadsList: []
+  }
 };
 
 export default config;

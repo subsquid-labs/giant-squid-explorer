@@ -10,14 +10,6 @@ enum HandlerParams {
   FUNC
 }
 
-export type ThreadConfig = {
-  index: number;
-  from: number;
-  to?: number;
-  retriesLimit: number;
-  prometheusPort: number;
-};
-
 export type SourceConfig = {
   chainName: KnownArchives;
   prefix: number | string;
@@ -29,5 +21,4 @@ export type SourceConfig = {
 
 export interface ProcessorConfig {
   srcConfig: SourceConfig;
-  threadsList: Array<ThreadConfig>;
 }

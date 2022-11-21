@@ -1,5 +1,5 @@
-module.exports = class Data1669062982052 {
-  name = 'Data1669062982052'
+module.exports = class Data1669063976734 {
+  name = 'Data1669063976734'
 
   async up(db) {
     await db.query(`CREATE EXTENSION pg_trgm `)

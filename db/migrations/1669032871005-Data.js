@@ -14,4 +14,6 @@ module.exports = class Data11669032871005 {
     await db.query(`DROP INDEX "IDX_001ddf290faf765f9dfd9154d3" `)
     await db.query(`ALTER INDEX "tmp_extrinsic_signer_idx" RENAME TO "IDX_001ddf290faf765f9dfd9154d3" `)
   }
+
+  async down(db) {}
 }

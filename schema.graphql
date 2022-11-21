@@ -28,7 +28,7 @@ type Extrinsic @entity {
   fee: BigInt @index
 }
 
-type Event @entity {
+type Event @entity @index(fields: ["eventName", "palletName"]) {
   "Event id - e.g. 0000000001-000000-272d6"
   id: ID!
   block: Block!
@@ -36,12 +36,14 @@ type Event @entity {
   timestamp: DateTime! @index
   extrinsicHash: String @index
   extrinsic: Extrinsic
+  call: Call
   indexInBlock: Int @index
-  name: String! @index
-  strArgs: String @index
+  eventName: String! @index
+  palletName: String! @index
+  argsStr: String
 }
 
-type Call @entity {
+type Call @entity @index(fields: ["eventName", "palletName"]) {
   id: ID!
   parentId: String @index
   block: Block!
@@ -49,16 +51,9 @@ type Call @entity {
   extrinsicHash: String @index
   blockNumber: Int! @index
   timestamp: DateTime! @index
-  name: String! @index
+  eventName: String! @index
+  palletName: String! @index
   success: Boolean! @index
+  caller: String @index
+  argsStr: String
 }
-
-#type ExtrinsicError @jsonField {
-#  kind: String!
-#  value: ExtrinsicErrorValue
-#}
-#
-#type ExtrinsicErrorValue @jsonField {
-#  error: String
-#  index: Int
-#}

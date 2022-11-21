@@ -1,8 +1,15 @@
 import { getConfig } from './config';
-import { SubstrateBatchProcessor } from '@subsquid/substrate-processor';
 import { lookupArchive } from '@subsquid/archive-registry';
 import { TypeormDatabase } from '@subsquid/processor-tools';
 import { Block as BlockEntity, Call, Event, Extrinsic } from './model';
+import {
+  BatchContext,
+  BatchProcessorCallItem,
+  BatchProcessorEventItem,
+  BatchProcessorItem,
+  SubstrateBatchProcessor,
+  SubstrateBlock,
+} from '@subsquid/substrate-processor'
 
 const chainConfig = getConfig();
 
@@ -16,19 +23,23 @@ const processor = new SubstrateBatchProcessor()
     data: {
       event: {
         extrinsic: true,
-        indexInBlock: true
+        indexInBlock: true,
+        args: true
       }
     }
   } as const)
   .addCall('*', {
     data: {
       call: {
-        parent: true
+        parent: true,
+        args: true
       },
       extrinsic: true
     }
   } as const)
   .includeAllBlocks();
+
+type CallItem = BatchProcessorCallItem<typeof processor>
 
 processor.run(
   new TypeormDatabase({
@@ -51,8 +62,9 @@ processor.run(
       for (let item of block.items) {
         switch (item.kind) {
           case 'event': {
-            // @ts-ignore
-            const { id, name, indexInBlock, extrinsic } = item.event;
+            const { id, name, indexInBlock, extrinsic, args } = item.event;
+
+            const decoratedName = name.split('.');
 
             const newEvent = new Event({
               id,
@@ -60,23 +72,32 @@ processor.run(
               blockNumber: currentBlock.height,
               timestamp: currentBlock.timestamp,
               indexInBlock: indexInBlock ?? null,
-              name
+              palletName: decoratedName[0],
+              eventName: decoratedName[1]
             });
+
+            try {
+              newEvent.argsStr = JSON.stringify(args);
+            } catch (e) {
+              ctx.log.warn('Event args cannot be stringified.');
+            }
 
             if (extrinsic) {
               // @ts-ignore
               newEvent.extrinsic = { id: extrinsic.id };
               newEvent.extrinsicHash = extrinsic.hash;
+              // @ts-ignore
+              newEvent.call = { id: extrinsic.call.id };
             }
 
             ctx.store.deferredUpsert(newEvent);
             break;
           }
           case 'call': {
-            // @ts-ignore
-            const { extrinsic }: { extrinsic: ExtrinsicScalars } = item;
+            const { extrinsic }: CallItem = item;
 
             let signer: string | null = null;
+            const decoratedCallName = item.call.name.split('.');
 
             if (
               extrinsic.signature &&
@@ -88,7 +109,6 @@ processor.run(
             }
 
             const newExtrinsic = new Extrinsic({
-              // @ts-ignore
               id: item.extrinsic.id,
               block: currentBlock,
               blockNumber: currentBlock.height,
@@ -105,16 +125,23 @@ processor.run(
 
             const newCall = new Call({
               id: item.call.id,
-              name: item.call.name,
-              // @ts-ignore
+              palletName: decoratedCallName[0],
+              eventName: decoratedCallName[1],
               parentId: item.call.parent ? item.call.parent.id : null,
               blockNumber: currentBlock.height,
               timestamp: currentBlock.timestamp,
               block: currentBlock,
               extrinsic: newExtrinsic,
               extrinsicHash: newExtrinsic.extrinsicHash,
-              success: extrinsic.success
+              success: extrinsic.success,
+              caller: signer
             });
+
+            try {
+              newCall.argsStr = JSON.stringify(item.call.args);
+            } catch (e) {
+              ctx.log.warn('Event args cannot be stringified.');
+            }
 
             ctx.store.deferredUpsert(newExtrinsic);
             ctx.store.deferredUpsert(newCall);

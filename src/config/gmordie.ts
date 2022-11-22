@@ -3,7 +3,7 @@ import { ProcessorConfig } from './processorConfig';
 const config: ProcessorConfig = {
   srcConfig: {
     chainName: 'gmordie',
-    prefix: 'gmordie',
+    prefix: 'gm',
     dataSource: {
       archive: 'https://gmordie.archive.subsquid.io/graphql',
       chain: 'wss://kusama.gmordie.com'

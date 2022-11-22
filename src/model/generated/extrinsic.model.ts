@@ -45,7 +45,11 @@ export class Extrinsic {
 
   @Index_()
   @Column_("text", {nullable: true})
-  signer!: string | undefined | null
+  signerPublicKey!: string | undefined | null
+
+  @Index_()
+  @Column_("text", {nullable: true})
+  signerAccount!: string | undefined | null
 
   @Index_()
   @Column_("bool", {nullable: false})

@@ -21,7 +21,8 @@ type Extrinsic @entity {
   extrinsicHash: String @index
   indexInBlock: Int! @index
   version: Int! @index
-  signer: String @index
+  signerPublicKey: String @index
+  signerAccount: String @index
   success: Boolean! @index
   error: String
   tip: BigInt
@@ -43,7 +44,7 @@ type Event @entity @index(fields: ["eventName", "palletName"]) {
   argsStr: String
 }
 
-type Call @entity @index(fields: ["eventName", "palletName"]) {
+type Call @entity @index(fields: ["callName", "palletName"]) {
   id: ID!
   parentId: String @index
   block: Block!
@@ -51,9 +52,10 @@ type Call @entity @index(fields: ["eventName", "palletName"]) {
   extrinsicHash: String @index
   blockNumber: Int! @index
   timestamp: DateTime! @index
-  eventName: String! @index
+  callName: String! @index
   palletName: String! @index
   success: Boolean! @index
-  caller: String @index
+  callerPublicKey: String @index
+  callerAccount: String @index
   argsStr: String
 }

@@ -3,13 +3,10 @@ import { lookupArchive } from '@subsquid/archive-registry';
 import { TypeormDatabase } from '@subsquid/processor-tools';
 import { Block as BlockEntity, Call, Event, Extrinsic } from './model';
 import {
-  BatchContext,
   BatchProcessorCallItem,
-  BatchProcessorEventItem,
-  BatchProcessorItem,
   SubstrateBatchProcessor,
-  SubstrateBlock,
-} from '@subsquid/substrate-processor'
+} from '@subsquid/substrate-processor';
+import { encodeAccount } from './utils/common';
 
 const chainConfig = getConfig();
 
@@ -39,7 +36,7 @@ const processor = new SubstrateBatchProcessor()
   } as const)
   .includeAllBlocks();
 
-type CallItem = BatchProcessorCallItem<typeof processor>
+type CallItem = BatchProcessorCallItem<typeof processor>;
 
 processor.run(
   new TypeormDatabase({
@@ -95,8 +92,8 @@ processor.run(
           }
           case 'call': {
             const { extrinsic }: CallItem = item;
-
             let signer: string | null = null;
+            let encodedSignerAccount: string | null = null;
             const decoratedCallName = item.call.name.split('.');
 
             if (
@@ -106,6 +103,7 @@ processor.run(
               extrinsic.signature.address.__kind === 'Id'
             ) {
               signer = extrinsic.signature.address.value;
+              encodedSignerAccount = encodeAccount(signer);
             }
 
             const newExtrinsic = new Extrinsic({
@@ -116,7 +114,8 @@ processor.run(
               extrinsicHash: extrinsic.hash,
               indexInBlock: extrinsic.indexInBlock,
               version: extrinsic.version,
-              signer,
+              signerPublicKey: signer,
+              signerAccount: encodedSignerAccount,
               error: extrinsic.error ? JSON.stringify(extrinsic.error) : null,
               success: extrinsic.success,
               tip: extrinsic.tip,
@@ -126,7 +125,7 @@ processor.run(
             const newCall = new Call({
               id: item.call.id,
               palletName: decoratedCallName[0],
-              eventName: decoratedCallName[1],
+              callName: decoratedCallName[1],
               parentId: item.call.parent ? item.call.parent.id : null,
               blockNumber: currentBlock.height,
               timestamp: currentBlock.timestamp,
@@ -134,7 +133,8 @@ processor.run(
               extrinsic: newExtrinsic,
               extrinsicHash: newExtrinsic.extrinsicHash,
               success: extrinsic.success,
-              caller: signer
+              callerPublicKey: signer,
+              callerAccount: encodedSignerAccount,
             });
 
             try {

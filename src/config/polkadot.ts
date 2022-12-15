@@ -8,7 +8,7 @@ const config: ProcessorConfig = {
       archive: 'https://polkadot.archive.subsquid.io/graphql',
       chain: 'wss://rpc.polkadot.io'
     },
-    batchSizeSaveThreshold: 3000
+    batchSizeSaveThreshold: 800
   }
 };
 

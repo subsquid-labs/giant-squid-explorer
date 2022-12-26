@@ -4,7 +4,7 @@ import { TypeormDatabase } from '@subsquid/processor-tools';
 import { Block as BlockEntity, Call, Event, Extrinsic } from './model';
 import {
   BatchProcessorCallItem,
-  SubstrateBatchProcessor,
+  SubstrateBatchProcessor
 } from '@subsquid/substrate-processor';
 import { encodeAccount } from './utils/common';
 
@@ -134,13 +134,22 @@ processor.run(
               extrinsicHash: newExtrinsic.extrinsicHash,
               success: extrinsic.success,
               callerPublicKey: signer,
-              callerAccount: encodedSignerAccount,
+              callerAccount: encodedSignerAccount
             });
 
-            try {
-              newCall.argsStr = JSON.stringify(item.call.args);
-            } catch (e) {
-              ctx.log.warn('Event args cannot be stringified.');
+            if (
+              // @ts-ignore
+              item.call.name !== 'Utility.batch' &&
+              // @ts-ignore
+              item.call.name !== 'Utility.batch_all'
+            ) {
+              try {
+                newCall.argsStr = JSON.stringify(item.call.args);
+              } catch (e) {
+                ctx.log.warn(
+                  `Event args cannot be stringified in call ${item.call.id}.`
+                );
+              }
             }
 
             ctx.store.deferredUpsert(newExtrinsic);

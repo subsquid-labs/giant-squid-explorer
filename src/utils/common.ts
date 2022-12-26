@@ -9,12 +9,7 @@ import {
 
 import * as ss58 from '@subsquid/ss58';
 import { decodeHex, toHex } from '@subsquid/util-internal-hex';
-import { getConfig } from '../config';
 import assert from 'assert';
-
-const chainConfig = getConfig();
-
-const ss58codec = ss58.codec(chainConfig.srcConfig.prefix);
 
 export class ParsedChainDataScope {
   private scope: ParsedEventsDataMap;

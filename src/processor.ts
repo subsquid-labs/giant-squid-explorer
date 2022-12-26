@@ -103,7 +103,10 @@ processor.run(
               extrinsic.signature.address.__kind === 'Id'
             ) {
               signer = extrinsic.signature.address.value;
-              encodedSignerAccount = encodeAccount(signer);
+              encodedSignerAccount = encodeAccount(
+                signer,
+                chainConfig.srcConfig.prefix
+              );
             }
 
             const newExtrinsic = new Extrinsic({

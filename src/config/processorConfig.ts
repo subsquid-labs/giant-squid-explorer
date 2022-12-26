@@ -12,7 +12,7 @@ enum HandlerParams {
 
 export type SourceConfig = {
   chainName: KnownArchives;
-  prefix: number | string;
+  prefix?: number | string;
   dataSource: Parameters<
     SubstrateProcessor<any>['setDataSource']
   >[HandlerParams.NAME];

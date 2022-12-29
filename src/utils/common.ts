@@ -58,11 +58,13 @@ function parseArgsHelper(srcNode: any, res: string[]): void {
 
   const handleVertex = (val: any) => {
     if (ArrayBuffer.isView(val) && val.constructor.name === 'Uint8Array') {
-      res.push(toHex(val as Uint8Array));
+      const tr = toHex(val as Uint8Array);
+      if (tr.length < chainConfig.argsStringMaxLengthLimit) res.push(tr);
       return;
     }
     if (ArrayBuffer.isView(val) && val.constructor.name !== 'Uint8Array') {
-      res.push(val.toString());
+      const tr = val.toString();
+      if (tr.length < chainConfig.argsStringMaxLengthLimit) res.push(tr);
       return;
     }
 

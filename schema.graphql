@@ -1,4 +1,3 @@
-
 type Block @entity {
   "BlockHeight-blockHash - e.g. 0001812319-0001c"
   id: ID!
@@ -41,7 +40,8 @@ type Event @entity @index(fields: ["eventName", "palletName"]) {
   indexInBlock: Int @index
   eventName: String! @index
   palletName: String! @index
-  argsStr: String
+  argsStr: [String]
+  argsJson: JSON @index
 }
 
 type Call @entity @index(fields: ["callName", "palletName"]) {
@@ -57,5 +57,6 @@ type Call @entity @index(fields: ["callName", "palletName"]) {
   success: Boolean! @index
   callerPublicKey: String @index
   callerAccount: String @index
-  argsStr: String
+  argsStr: [String]
+  argsJson: JSON @index
 }

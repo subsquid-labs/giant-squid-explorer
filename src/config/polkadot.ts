@@ -7,9 +7,10 @@ const config: ProcessorConfig = {
     dataSource: {
       archive: 'https://polkadot.archive.subsquid.io/graphql',
       chain: 'wss://rpc.polkadot.io'
-    },
-    batchSizeSaveThreshold: 800
-  }
+    }
+  },
+  batchSizeSaveThreshold: 600,
+  argsStringMaxLengthLimit: 70
 };
 
 export default config;

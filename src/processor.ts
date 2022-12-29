@@ -6,7 +6,7 @@ import {
   BatchProcessorCallItem,
   SubstrateBatchProcessor
 } from '@subsquid/substrate-processor';
-import { encodeAccount } from './utils/common';
+import { encodeAccount, getParsedArgs } from './utils/common';
 
 const chainConfig = getConfig();
 
@@ -74,9 +74,11 @@ processor.run(
             });
 
             try {
-              newEvent.argsStr = JSON.stringify(args);
+              newEvent.argsStr = getParsedArgs(args);
+              newEvent.argsJson = newEvent.argsStr;
             } catch (e) {
               ctx.log.warn('Event args cannot be stringified.');
+              console.dir(e, { depth: null });
             }
 
             if (extrinsic) {
@@ -147,11 +149,13 @@ processor.run(
               item.call.name !== 'Utility.batch_all'
             ) {
               try {
-                newCall.argsStr = JSON.stringify(item.call.args);
+                newCall.argsStr = getParsedArgs(item.call.args);
+                newCall.argsJson = newCall.argsStr;
               } catch (e) {
                 ctx.log.warn(
                   `Event args cannot be stringified in call ${item.call.id}.`
                 );
+                console.dir(e, { depth: null });
               }
             }
 
@@ -166,8 +170,7 @@ processor.run(
     }
 
     const saveThreshold =
-      process.env.SAVE_THRESHOLD ??
-      chainConfig.srcConfig.batchSizeSaveThreshold;
+      process.env.SAVE_THRESHOLD ?? chainConfig.batchSizeSaveThreshold;
     if (
       ctx.blocks.length === 1 ||
       [...ctx.store.values(BlockEntity)].length > saveThreshold

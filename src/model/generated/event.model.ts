@@ -51,6 +51,10 @@ export class Event {
   @Column_("text", {nullable: false})
   palletName!: string
 
-  @Column_("text", {nullable: true})
-  argsStr!: string | undefined | null
+  @Column_("text", {array: true, nullable: true})
+  argsStr!: (string | undefined | null)[] | undefined | null
+
+  @Index_()
+  @Column_("jsonb", {nullable: true})
+  argsJson!: unknown | undefined | null
 }

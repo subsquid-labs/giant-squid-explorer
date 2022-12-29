@@ -7,9 +7,10 @@ const config: ProcessorConfig = {
     dataSource: {
       archive: 'https://acala.archive.subsquid.io/graphql',
       chain: 'wss://acala-rpc-2.aca-api.network/ws'
-    },
-    batchSizeSaveThreshold: 3000
+    }
   },
+  batchSizeSaveThreshold: 3000,
+  argsStringMaxLengthLimit: 70
 };
 
 export default config;

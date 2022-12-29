@@ -7,9 +7,10 @@ const config: ProcessorConfig = {
     dataSource: {
       archive: 'https://crust.archive.subsquid.io/graphql',
       chain: 'wss://rpc.crust.network'
-    },
-    batchSizeSaveThreshold: 3000
+    }
   },
+  batchSizeSaveThreshold: 3000,
+  argsStringMaxLengthLimit: 70
 };
 
 export default config;

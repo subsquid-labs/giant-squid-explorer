@@ -7,9 +7,10 @@ const config: ProcessorConfig = {
     dataSource: {
       archive: 'https://gmordie.archive.subsquid.io/graphql',
       chain: 'wss://kusama.gmordie.com'
-    },
-    batchSizeSaveThreshold: 5000
-  }
+    }
+  },
+  batchSizeSaveThreshold: 5000,
+  argsStringMaxLengthLimit: 70
 };
 
 export default config;

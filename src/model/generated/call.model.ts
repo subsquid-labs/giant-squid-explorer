@@ -55,6 +55,10 @@ export class Call {
   @Column_("text", {nullable: true})
   callerAccount!: string | undefined | null
 
-  @Column_("text", {nullable: true})
-  argsStr!: string | undefined | null
+  @Column_("text", {array: true, nullable: true})
+  argsStr!: (string | undefined | null)[] | undefined | null
+
+  @Index_()
+  @Column_("jsonb", {nullable: true})
+  argsJson!: unknown | undefined | null
 }

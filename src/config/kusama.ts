@@ -7,9 +7,10 @@ const config: ProcessorConfig = {
     dataSource: {
       archive: 'https://kusama.archive.subsquid.io/graphql',
       chain: 'wss://kusama-rpc.polkadot.io'
-    },
-    batchSizeSaveThreshold: 1000
-  }
+    }
+  },
+  batchSizeSaveThreshold: 600,
+  argsStringMaxLengthLimit: 70
 };
 
 export default config;

@@ -16,9 +16,10 @@ export type SourceConfig = {
   dataSource: Parameters<
     SubstrateProcessor<any>['setDataSource']
   >[HandlerParams.NAME];
-  batchSizeSaveThreshold: number;
 };
 
 export interface ProcessorConfig {
   srcConfig: SourceConfig;
+  batchSizeSaveThreshold: number;
+  argsStringMaxLengthLimit: number;
 }

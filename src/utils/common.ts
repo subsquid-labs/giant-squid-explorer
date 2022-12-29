@@ -6,10 +6,12 @@ import {
   ParsedEventsDataMap,
   ParsedChainData
 } from './types';
-
+import { getConfig } from '../config';
 import * as ss58 from '@subsquid/ss58';
 import { decodeHex, toHex } from '@subsquid/util-internal-hex';
 import assert from 'assert';
+
+const chainConfig = getConfig();
 
 export class ParsedChainDataScope {
   private scope: ParsedEventsDataMap;
@@ -49,4 +51,49 @@ export function decodeAccount(
   prefix?: string | number | undefined
 ) {
   return prefix != null ? ss58.codec(prefix).decode(id) : decodeHex(id);
+}
+
+function parseArgsHelper(srcNode: any, res: string[]): void {
+  if (!srcNode) return;
+
+  const handleVertex = (val: any) => {
+    if (ArrayBuffer.isView(val) && val.constructor.name === 'Uint8Array') {
+      res.push(toHex(val as Uint8Array));
+      return;
+    }
+    if (ArrayBuffer.isView(val) && val.constructor.name !== 'Uint8Array') {
+      res.push(val.toString());
+      return;
+    }
+
+    switch (typeof val) {
+      case 'string':
+        if (val.length > 0 && val.length < chainConfig.argsStringMaxLengthLimit)
+          res.push(val);
+        break;
+      case 'number':
+      case 'bigint':
+        res.push((<any>val).toString());
+        break;
+    }
+  };
+
+  if (
+    Array.isArray(srcNode) ||
+    (!Array.isArray(srcNode) &&
+      !ArrayBuffer.isView(srcNode) &&
+      typeof srcNode === 'object')
+  ) {
+    // It's array or object
+    for (const key in srcNode) parseArgsHelper(srcNode[key], res);
+  } else {
+    // It's primitive value
+    handleVertex(srcNode);
+  }
+}
+
+export function getParsedArgs(srcArgs: any): string[] {
+  let result: string[] = [];
+  parseArgsHelper(srcArgs, result);
+  return result;
 }

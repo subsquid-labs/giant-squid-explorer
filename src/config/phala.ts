@@ -7,9 +7,10 @@ const config: ProcessorConfig = {
     dataSource: {
       archive: 'https://phala.archive.subsquid.io/graphql',
       chain: 'wss://api.phala.network/ws'
-    },
-    batchSizeSaveThreshold: 3000
-  }
+    }
+  },
+  batchSizeSaveThreshold: 3000,
+  argsStringMaxLengthLimit: 70
 };
 
 export default config;

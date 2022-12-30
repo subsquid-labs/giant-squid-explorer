@@ -16,7 +16,6 @@ const processor = new SubstrateBatchProcessor()
       release: 'FireSquid'
     })
   })
-  .setBlockRange({ from: 10000000, to: 10100000 })
   .addEvent('*', {
     data: {
       event: {

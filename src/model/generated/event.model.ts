@@ -53,7 +53,4 @@ export class Event {
 
   @Column_("text", {array: true, nullable: true})
   argsStr!: (string | undefined | null)[] | undefined | null
-
-  @Column_("jsonb", {nullable: true})
-  argsJson!: unknown | undefined | null
 }

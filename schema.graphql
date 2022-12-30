@@ -41,7 +41,6 @@ type Event @entity @index(fields: ["eventName", "palletName"]) {
   eventName: String! @index
   palletName: String! @index
   argsStr: [String]
-  argsJson: JSON
 }
 
 type Call @entity @index(fields: ["callName", "palletName"]) {
@@ -58,5 +57,4 @@ type Call @entity @index(fields: ["callName", "palletName"]) {
   callerPublicKey: String @index
   callerAccount: String @index
   argsStr: [String]
-  argsJson: JSON
 }

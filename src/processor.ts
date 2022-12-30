@@ -78,7 +78,6 @@ processor.run(new TypeormDatabase(), async (ctx) => {
 
           try {
             newEvent.argsStr = getParsedArgs(args);
-            // newEvent.argsJson = newEvent.argsStr;
           } catch (e) {
             ctx.log.warn('Event args cannot be stringified.');
             console.dir(e, { depth: null });
@@ -152,7 +151,6 @@ processor.run(new TypeormDatabase(), async (ctx) => {
           ) {
             try {
               newCall.argsStr = getParsedArgs(item.call.args);
-              // newCall.argsJson = newCall.argsStr;
             } catch (e) {
               ctx.log.warn(
                 `Event args cannot be stringified in call ${item.call.id}.`

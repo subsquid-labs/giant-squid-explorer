@@ -15,7 +15,7 @@
   "dependencies": {
     "@subsquid/archive-registry": "1.0.15",
     "@subsquid/graphql-server": "3.2.2",
-    "@subsquid/processor-tools": "github:mckrava/processor-tools",
+    "@subsquid/processor-tools": "github:subsquid/typeorm-cache-store",
     "@subsquid/ss58": "0.1.2",
     "@subsquid/substrate-processor": "^2.0.0",
     "@subsquid/typeorm-migration": "0.1.3",

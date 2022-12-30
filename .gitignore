@@ -7,5 +7,5 @@
 # IDE files
 /.idea
 /data
-/data/db
+/data/db_array
 /builds

@@ -53,29 +53,33 @@ export function decodeAccount(
   return prefix != null ? ss58.codec(prefix).decode(id) : decodeHex(id);
 }
 
-function parseArgsHelper(srcNode: any, res: string[]): void {
+function parseArgsHelper(srcNode: any, res: Set<string>): void {
   if (!srcNode) return;
 
   const handleVertex = (val: any) => {
     if (ArrayBuffer.isView(val) && val.constructor.name === 'Uint8Array') {
       const tr = toHex(val as Uint8Array);
-      if (tr.length < chainConfig.argsStringMaxLengthLimit) res.push(tr);
+      if (tr.length < chainConfig.argsStringMaxLengthLimit) res.add(tr);
       return;
     }
     if (ArrayBuffer.isView(val) && val.constructor.name !== 'Uint8Array') {
       const tr = val.toString();
-      if (tr.length < chainConfig.argsStringMaxLengthLimit) res.push(tr);
+      if (tr.length < chainConfig.argsStringMaxLengthLimit) res.add(tr);
       return;
     }
 
     switch (typeof val) {
       case 'string':
-        if (val.length > 0 && val.length < chainConfig.argsStringMaxLengthLimit)
-          res.push(val);
+        if (
+          val.length > 0 &&
+          val.length < chainConfig.argsStringMaxLengthLimit
+        ) {
+          res.add(val);
+        }
         break;
       case 'number':
       case 'bigint':
-        res.push((<any>val).toString());
+        res.add((<any>val).toString());
         break;
     }
   };
@@ -95,7 +99,7 @@ function parseArgsHelper(srcNode: any, res: string[]): void {
 }
 
 export function getParsedArgs(srcArgs: any): string[] {
-  let result: string[] = [];
+  let result: Set<string> = new Set();
   parseArgsHelper(srcArgs, result);
-  return result;
+  return [...result.values()];
 }

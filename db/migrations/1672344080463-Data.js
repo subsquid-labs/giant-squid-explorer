@@ -1,8 +1,8 @@
-module.exports = class Data1672339347404 {
-  name = 'Data1672339347404'
+module.exports = class Data1672344080463 {
+  name = 'Data1672344080463'
 
   async up(db) {
-    await db.query(`CREATE TABLE "call" ("id" character varying NOT NULL, "parent_id" text, "extrinsic_hash" text, "block_number" integer NOT NULL, "timestamp" TIMESTAMP WITH TIME ZONE NOT NULL, "call_name" text NOT NULL, "pallet_name" text NOT NULL, "success" boolean NOT NULL, "caller_public_key" text, "caller_account" text, "args_str" text array, "block_id" character varying, "extrinsic_id" character varying, CONSTRAINT "PK_2098af0169792a34f9cfdd39c47" PRIMARY KEY ("id"))`)
+    await db.query(`CREATE TABLE "call" ("id" character varying NOT NULL, "parent_id" text, "extrinsic_hash" text, "block_number" integer NOT NULL, "timestamp" TIMESTAMP WITH TIME ZONE NOT NULL, "call_name" text NOT NULL, "pallet_name" text NOT NULL, "success" boolean NOT NULL, "caller_public_key" text, "caller_account" text, "args_str" text array, "args_json" jsonb, "block_id" character varying, "extrinsic_id" character varying, CONSTRAINT "PK_2098af0169792a34f9cfdd39c47" PRIMARY KEY ("id"))`)
     await db.query(`CREATE INDEX "IDX_11c1e76d5be8f04c472c4a05b9" ON "call" ("parent_id") `)
     await db.query(`CREATE INDEX "IDX_bd3f11fd4110d60ac8b96cd62f" ON "call" ("block_id") `)
     await db.query(`CREATE INDEX "IDX_dde30e4f2c6a80f9236bfdf259" ON "call" ("extrinsic_id") `)
@@ -14,7 +14,7 @@ module.exports = class Data1672339347404 {
     await db.query(`CREATE INDEX "IDX_9e10170ecc8b54fb371180eb44" ON "call" ("caller_public_key") `)
     await db.query(`CREATE INDEX "IDX_32337172c8a27f1011b37360e7" ON "call" ("caller_account") `)
     await db.query(`CREATE INDEX "IDX_31a39e0ac38c2063844eb6be42" ON "call" ("call_name", "pallet_name") `)
-    await db.query(`CREATE TABLE "event" ("id" character varying NOT NULL, "block_number" integer NOT NULL, "timestamp" TIMESTAMP WITH TIME ZONE NOT NULL, "extrinsic_hash" text, "index_in_block" integer, "event_name" text NOT NULL, "pallet_name" text NOT NULL, "args_str" text array, "block_id" character varying, "extrinsic_id" character varying, "call_id" character varying, CONSTRAINT "PK_30c2f3bbaf6d34a55f8ae6e4614" PRIMARY KEY ("id"))`)
+    await db.query(`CREATE TABLE "event" ("id" character varying NOT NULL, "block_number" integer NOT NULL, "timestamp" TIMESTAMP WITH TIME ZONE NOT NULL, "extrinsic_hash" text, "index_in_block" integer, "event_name" text NOT NULL, "pallet_name" text NOT NULL, "args_str" text array, "args_json" jsonb, "block_id" character varying, "extrinsic_id" character varying, "call_id" character varying, CONSTRAINT "PK_30c2f3bbaf6d34a55f8ae6e4614" PRIMARY KEY ("id"))`)
     await db.query(`CREATE INDEX "IDX_2b0d35d675c4f99751855c4502" ON "event" ("block_id") `)
     await db.query(`CREATE INDEX "IDX_a8a7fbbbb0d8305cd81eda6ac8" ON "event" ("block_number") `)
     await db.query(`CREATE INDEX "IDX_2c15918ff289396205521c5f3c" ON "event" ("timestamp") `)

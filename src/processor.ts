@@ -16,6 +16,7 @@ const processor = new SubstrateBatchProcessor()
       release: 'FireSquid'
     })
   })
+  .setBlockRange({ from: 10000000, to: 10100000 })
   .addEvent('*', {
     data: {
       event: {
@@ -75,7 +76,7 @@ processor.run(
 
             try {
               newEvent.argsStr = getParsedArgs(args);
-              newEvent.argsJson = newEvent.argsStr;
+              // newEvent.argsJson = newEvent.argsStr;
             } catch (e) {
               ctx.log.warn('Event args cannot be stringified.');
               console.dir(e, { depth: null });
@@ -150,7 +151,7 @@ processor.run(
             ) {
               try {
                 newCall.argsStr = getParsedArgs(item.call.args);
-                newCall.argsJson = newCall.argsStr;
+                // newCall.argsJson = newCall.argsStr;
               } catch (e) {
                 ctx.log.warn(
                   `Event args cannot be stringified in call ${item.call.id}.`

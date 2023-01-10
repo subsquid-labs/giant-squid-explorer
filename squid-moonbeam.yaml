@@ -1,8 +1,8 @@
 manifestVersion: subsquid.io/v0.1
-name: caller-squid-polkadot
-version: 1
+name: caller-squid-moonbeam
+version: 2
 description: |-
-  Caller squid for Polkadot
+  Caller squid for Moonbeam
 build:
 
 deploy:
@@ -10,7 +10,8 @@ deploy:
     postgres:
   processor:
     env:
-      CHAIN=polkadot
+      CHAIN:
+        moonbeam
     cmd: [ "node", "lib/processor" ]
   api:
     cmd: [ "npx", "squid-graphql-server", "--dumb-cache", "in-memory", "--dumb-cache-ttl", "1000", "--dumb-cache-size", "100", "--dumb-cache-max-age", "1000" ]

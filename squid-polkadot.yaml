@@ -9,6 +9,9 @@ deploy:
   addons:
     postgres:
   processor:
-    cmd: [ "CHAIN=polkadot", "node", "lib/processor" ]
+    env:
+      CHAIN:
+        polkadot
+    cmd: [ "node", "lib/processor" ]
   api:
     cmd: [ "npx", "squid-graphql-server", "--dumb-cache", "in-memory", "--dumb-cache-ttl", "1000", "--dumb-cache-size", "100", "--dumb-cache-max-age", "1000" ]

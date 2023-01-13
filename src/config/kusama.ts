@@ -10,7 +10,7 @@ const config: ProcessorConfig = {
     }
   },
   batchSizeSaveThreshold: 600,
-  argsStringMaxLengthLimit: 70
+  argsStringMaxLengthLimit: 66
 };
 
 export default config;

@@ -1,4 +1,4 @@
-import { getConfig } from './config';
+import { blacklist ,getChainConfig } from './config';
 import { lookupArchive } from '@subsquid/archive-registry';
 import { TypeormDatabase } from '@subsquid/typeorm-store';
 import { Block as BlockEntity, Call, Event, Extrinsic } from './model';
@@ -6,11 +6,15 @@ import {
   BatchProcessorCallItem,
   SubstrateBatchProcessor
 } from '@subsquid/substrate-processor';
-import { encodeAccount, getParsedArgs } from './utils/common';
+import { encodeAccount, getParsedArgs, ItemsLogger } from './utils/common';
 
-const chainConfig = getConfig();
+const LIMIT = Number(process.env.LIMIT) ?? 100;
+
+
+const chainConfig = getChainConfig();
 
 const processor = new SubstrateBatchProcessor()
+  .setBlockRange({ from: Number(process.env.START) ?? 10_000_000 })
   .setDataSource({
     archive: lookupArchive(chainConfig.srcConfig.chainName, {
       release: 'FireSquid'
@@ -75,13 +79,19 @@ processor.run(new TypeormDatabase(), async (ctx) => {
             palletName: decoratedName[0],
             eventName: decoratedName[1]
           });
-
-          try {
-            newEvent.argsStr = getParsedArgs(args);
-          } catch (e) {
-            ctx.log.warn('Event args cannot be stringified.');
-            console.dir(e, { depth: null });
-          }
+          if (
+            // @ts-ignore
+            !BLACKLIST.includes(name)
+          )
+            try {
+              newEvent.argsStr = getParsedArgs(args);
+              // TESTING
+              const argLen = newEvent.argsStr.length;
+              ItemsLogger.add(name, argLen);
+            } catch (e) {
+              ctx.log.warn('Event args cannot be stringified.');
+              console.dir(e, { depth: null });
+            }
 
           if (extrinsic) {
             // @ts-ignore
@@ -145,12 +155,13 @@ processor.run(new TypeormDatabase(), async (ctx) => {
 
           if (
             // @ts-ignore
-            item.call.name !== 'Utility.batch' &&
-            // @ts-ignore
-            item.call.name !== 'Utility.batch_all'
+            !BLACKLIST.includes(item.call.name)
           ) {
             try {
               newCall.argsStr = getParsedArgs(item.call.args);
+              // TESTING
+              const argLen = newCall.argsStr.length;
+              ItemsLogger.add(item.call.name, argLen);
             } catch (e) {
               ctx.log.warn(
                 `Event args cannot be stringified in call ${item.call.id}.`
@@ -169,16 +180,16 @@ processor.run(new TypeormDatabase(), async (ctx) => {
     }
   }
 
-  if (entitiesStore.get('block')!.size > 0)
-    await ctx.store.insert([...entitiesStore.get('block')!.values()]);
+  ItemsLogger.printStats();
+  // if (entitiesStore.get('block')!.size > 0)
+  //   await ctx.store.insert([...entitiesStore.get('block')!.values()]);
 
-  if (entitiesStore.get('extrinsic')!.size > 0)
-    await ctx.store.insert([...entitiesStore.get('extrinsic')!.values()]);
+  // if (entitiesStore.get('extrinsic')!.size > 0)
+  //   await ctx.store.insert([...entitiesStore.get('extrinsic')!.values()]);
 
-  if (entitiesStore.get('call')!.size > 0)
-    await ctx.store.insert([...entitiesStore.get('call')!.values()]);
+  // if (entitiesStore.get('call')!.size > 0)
+  //   await ctx.store.insert([...entitiesStore.get('call')!.values()]);
 
-  if (entitiesStore.get('event')!.size > 0)
-    await ctx.store.insert([...entitiesStore.get('event')!.values()]);
-
+  // if (entitiesStore.get('event')!.size > 0)
+  //   await ctx.store.insert([...entitiesStore.get('event')!.values()]);
 });

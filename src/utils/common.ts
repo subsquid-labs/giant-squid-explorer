@@ -6,12 +6,68 @@ import {
   ParsedEventsDataMap,
   ParsedChainData
 } from './types';
-import { getConfig } from '../config';
+import { getChainConfig } from '../config';
 import * as ss58 from '@subsquid/ss58';
 import { decodeHex, toHex } from '@subsquid/util-internal-hex';
 import assert from 'assert';
 
-const chainConfig = getConfig();
+const chainConfig = getChainConfig();
+const LIMIT = Number(process.env.LIMIT) ?? 100;
+
+export class ItemsLogger {
+  private static itemsMap = new Map<string, { total: number; len: number }>();
+  private static bigItemsMap = new Map<
+    string,
+    { total: number; len: number }
+  >();
+
+  static add(itemName: string, len_: number) {
+    if (len_ > LIMIT) {
+      const curVal = ItemsLogger.bigItemsMap.get(itemName) ?? {
+        total: 0,
+        len: 0
+      };
+      ItemsLogger.bigItemsMap.set(itemName, {
+        total: curVal.total + 1,
+        len: curVal.len + len_
+      });
+    }
+    const curVal = ItemsLogger.itemsMap.get(itemName) ?? {
+      total: 0,
+      len: 0
+    };
+    ItemsLogger.itemsMap.set(itemName, {
+      total: curVal.total + 1,
+      len: curVal.len + len_
+    });
+  }
+
+  static printStats() {
+    console.log('Regular items:');
+    const sortedReg = [...ItemsLogger.itemsMap.entries()].sort(
+      (i1, i2) => i2[1].total - i1[1].total
+    );
+
+    sortedReg.forEach((val) => {
+      console.log(
+        `${val[0]} - ${val[1].total} times (${
+          val[1].len / val[1].total
+        } av. values)`
+      );
+    });
+    console.log('Big items:');
+    const sortedBig = [...ItemsLogger.bigItemsMap.entries()].sort(
+      (i1, i2) => i2[1].total - i1[1].total
+    );
+    sortedBig.forEach((val) => {
+      console.log(
+        `${val[0]} - ${val[1].total} times (${
+          val[1].len / val[1].total
+        } av. values)`
+      );
+    });
+  }
+}
 
 export class ParsedChainDataScope {
   private scope: ParsedEventsDataMap;

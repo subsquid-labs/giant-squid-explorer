@@ -1,6 +1,18 @@
-import { ProcessorConfig } from './processorConfig';
+import type { ProcessorConfig } from './processorConfig';
+import fs from 'fs';
 
-export function getConfig(): ProcessorConfig {
+function getJSON(filename: string) {
+  fs.readFile(filename, 'utf8', (error, data) => {
+    if (error) {
+      throw error;
+    }
+    return JSON.parse(data)
+  });
+}
+
+export const blacklist = getJSON("../../assets/blacklist-items.json")
+
+export function getChainConfig(): ProcessorConfig {
   switch (process.env.CHAIN) {
     case 'kusama':
       return require('./kusama').default;

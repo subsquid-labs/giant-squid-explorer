@@ -1,0 +1,17 @@
+{
+  "blacklistItems": [
+    "ElectionProviderMultiPhase.submit",
+    "ElectionProviderMultiPhase.submit_unsigned",
+    "ImOnline.HeartbeatReceived",
+    "ImOnline.SomeOffline",
+    "ImOnline.heartbeat",
+    "ParaInclusion.CandidateBacked",
+    "ParaInclusion.CandidateIncluded",
+    "ParaInherent.enter",
+    "ParachainSystem.set_validation_data",
+    "System.ExtrinsicSuccess",
+    "Utility.batch",
+    "Utility.batch_all"
+  ],
+  "argsStringMaxLengthLimit": 66
+}

@@ -1,38 +1,43 @@
-import type { ProcessorConfig } from './processorConfig';
-import fs from 'fs';
+import type { ProcessorConfig } from './processorConfig'
+import fs from 'fs'
+import { assertNotNull } from '@subsquid/substrate-processor'
 
-function getJSON(filename: string) {
-  fs.readFile(filename, 'utf8', (error, data) => {
-    if (error) {
-      throw error;
-    }
-    return JSON.parse(data)
-  });
+export const BLACKLIST_CONFIG: IBlackListConfing = getJSON(
+  'assets/blacklist-config.json'
+)
+
+interface IBlackListConfing {
+  blacklistItems: string[]
+  argsStringMaxLengthLimit: number
 }
 
-export const blacklist = getJSON("../../assets/blacklist-items.json")
+function getJSON(filename: string) {
+  const data = fs.readFileSync(filename).toString()
+  //console.log(data)
+  return JSON.parse(data)
+}
 
 export function getChainConfig(): ProcessorConfig {
   switch (process.env.CHAIN) {
     case 'kusama':
-      return require('./kusama').default;
+      return require('./kusama').default
     case 'polkadot':
-      return require('./polkadot').default;
+      return require('./polkadot').default
     case 'acala':
-      return require('./acala').default;
+      return require('./acala').default
     case 'moonriver':
-      return require('./moonriver').default;
+      return require('./moonriver').default
     case 'moonbeam':
-      return require('./moonbeam').default;
+      return require('./moonbeam').default
     case 'crust':
-      return require('./crust').default;
+      return require('./crust').default
     case 'bifrost':
-      return require('./bifrost').default;
+      return require('./bifrost').default
     case 'phala':
-      return require('./phala').default;
+      return require('./phala').default
     case 'gmordie':
-      return require('./gmordie').default;
+      return require('./gmordie').default
     default:
-      throw new Error(`Unsupported chain ${process.env.CHAIN}`);
+      throw new Error(`Unsupported chain ${process.env.CHAIN}`)
   }
 }

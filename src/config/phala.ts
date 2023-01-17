@@ -1,16 +1,12 @@
-import { ProcessorConfig } from './processorConfig';
+import { ProcessorConfig } from './processorConfig'
 
 const config: ProcessorConfig = {
-  srcConfig: {
-    chainName: 'phala',
-    prefix: 'phala',
-    dataSource: {
-      archive: 'https://phala.archive.subsquid.io/graphql',
-      chain: 'wss://api.phala.network/ws'
-    }
-  },
-  batchSizeSaveThreshold: 3000,
-  argsStringMaxLengthLimit: 66
-};
+  chainName: 'phala',
+  prefix: 'phala',
+  dataSource: {
+    archive: 'https://phala.archive.subsquid.io/graphql',
+    chain: 'wss://api.phala.network/ws'
+  }
+}
 
-export default config;
+export default config

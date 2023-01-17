@@ -1,6 +1,6 @@
 manifestVersion: subsquid.io/v0.1
 name: caller-squid-kusama
-version: 1
+version: 2
 description: |-
   Caller squid for Kusama
 build:
@@ -19,5 +19,5 @@ deploy:
 scale:
   addons:
      postgres:
-         storage: 200G
+         storage: 100G
          profile: large

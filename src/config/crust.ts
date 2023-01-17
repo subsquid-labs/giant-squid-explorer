@@ -1,16 +1,12 @@
-import { ProcessorConfig } from './processorConfig';
+import { ProcessorConfig } from './processorConfig'
 
 const config: ProcessorConfig = {
-  srcConfig: {
-    chainName: 'crust',
-    prefix: 'crust',
-    dataSource: {
-      archive: 'https://crust.archive.subsquid.io/graphql',
-      chain: 'wss://rpc.crust.network'
-    }
-  },
-  batchSizeSaveThreshold: 3000,
-  argsStringMaxLengthLimit: 66
-};
+  chainName: 'crust',
+  prefix: 'crust',
+  dataSource: {
+    archive: 'https://crust.archive.subsquid.io/graphql',
+    chain: 'wss://rpc.crust.network'
+  }
+}
 
-export default config;
+export default config

@@ -1,25 +1,18 @@
-import { blacklist ,getChainConfig } from './config';
-import { lookupArchive } from '@subsquid/archive-registry';
-import { TypeormDatabase } from '@subsquid/typeorm-store';
-import { Block as BlockEntity, Call, Event, Extrinsic } from './model';
+import { BLACKLIST_CONFIG, getChainConfig } from './config'
+import { TypeormDatabase } from '@subsquid/typeorm-store'
+import { Block as BlockEntity, Call, Event, Extrinsic } from './model'
 import {
   BatchProcessorCallItem,
-  SubstrateBatchProcessor
-} from '@subsquid/substrate-processor';
-import { encodeAccount, getParsedArgs, ItemsLogger } from './utils/common';
+  SubstrateBatchProcessor,
+  SubstrateBlock
+} from '@subsquid/substrate-processor'
+import { encodeAccount, getParsedArgs, ItemsLogger } from './utils/common'
 
-const LIMIT = Number(process.env.LIMIT) ?? 100;
-
-
-const chainConfig = getChainConfig();
+const CHAIN_CONFIG = getChainConfig()
 
 const processor = new SubstrateBatchProcessor()
-  .setBlockRange({ from: Number(process.env.START) ?? 10_000_000 })
-  .setDataSource({
-    archive: lookupArchive(chainConfig.srcConfig.chainName, {
-      release: 'FireSquid'
-    })
-  })
+  .setBlockRange(CHAIN_CONFIG.blockRange ?? { from: 10_000_000 })
+  .setDataSource(CHAIN_CONFIG.dataSource)
   .addEvent('*', {
     data: {
       event: {
@@ -38,20 +31,22 @@ const processor = new SubstrateBatchProcessor()
       extrinsic: true
     }
   } as const)
-  .includeAllBlocks();
+  .includeAllBlocks()
 
-type CallItem = BatchProcessorCallItem<typeof processor>;
+type CallItem = BatchProcessorCallItem<typeof processor>
 
 processor.run(new TypeormDatabase(), async (ctx) => {
   const entitiesStore = new Map<
     'block' | 'event' | 'call' | 'extrinsic',
     Map<string, BlockEntity | Event | Call | Extrinsic>
-  >();
-  entitiesStore.set('block', new Map());
-  entitiesStore.set('event', new Map());
-  entitiesStore.set('call', new Map());
-  entitiesStore.set('extrinsic', new Map());
+  >()
+  entitiesStore.set('block', new Map())
+  entitiesStore.set('event', new Map())
+  entitiesStore.set('call', new Map())
+  entitiesStore.set('extrinsic', new Map())
 
+  if (!ItemsLogger.isInitialized())
+    await ItemsLogger.init({ block: ctx.blocks[0] as any, ...ctx })
   for (let block of ctx.blocks) {
     const currentBlock = new BlockEntity({
       id: block.header.id,
@@ -59,16 +54,16 @@ processor.run(new TypeormDatabase(), async (ctx) => {
       hash: block.header.hash,
       parentHash: block.header.parentHash,
       timestamp: new Date(block.header.timestamp)
-    });
+    })
 
-    entitiesStore.get('block')!.set(currentBlock.id, currentBlock);
+    entitiesStore.get('block')!.set(currentBlock.id, currentBlock)
 
     for (let item of block.items) {
       switch (item.kind) {
         case 'event': {
-          const { id, name, indexInBlock, extrinsic, args } = item.event;
+          const { id, name, indexInBlock, extrinsic, args } = item.event
 
-          const decoratedName = name.split('.');
+          const decoratedName = name.split('.')
 
           const newEvent = new Event({
             id,
@@ -78,36 +73,34 @@ processor.run(new TypeormDatabase(), async (ctx) => {
             indexInBlock: indexInBlock ?? null,
             palletName: decoratedName[0],
             eventName: decoratedName[1]
-          });
-          if (
-            // @ts-ignore
-            !BLACKLIST.includes(name)
-          )
+          })
+
+          ItemsLogger.add(name)
+          ItemsLogger.add(newEvent.palletName)
+
+          if (!BLACKLIST_CONFIG.blacklistItems.includes(name))
             try {
-              newEvent.argsStr = getParsedArgs(args);
-              // TESTING
-              const argLen = newEvent.argsStr.length;
-              ItemsLogger.add(name, argLen);
+              newEvent.argsStr = getParsedArgs(args)
             } catch (e) {
-              ctx.log.warn('Event args cannot be stringified.');
-              console.dir(e, { depth: null });
+              ctx.log.warn('Event args cannot be stringified.')
+              console.dir(e, { depth: null })
             }
 
           if (extrinsic) {
             // @ts-ignore
-            newEvent.extrinsic = { id: extrinsic.id };
-            newEvent.extrinsicHash = extrinsic.hash;
+            newEvent.extrinsic = { id: extrinsic.id }
+            newEvent.extrinsicHash = extrinsic.hash
             // @ts-ignore
-            newEvent.call = { id: extrinsic.call.id };
+            newEvent.call = { id: extrinsic.call.id }
           }
-          entitiesStore.get('event')!.set(newEvent.id, newEvent);
-          break;
+          entitiesStore.get('event')!.set(newEvent.id, newEvent)
+          break
         }
         case 'call': {
-          const { extrinsic }: CallItem = item;
-          let signer: string | null = null;
-          let encodedSignerAccount: string | null = null;
-          const decoratedCallName = item.call.name.split('.');
+          const { extrinsic }: CallItem = item
+          let signer: string | null = null
+          let encodedSignerAccount: string | null = null
+          const decoratedCallName = item.call.name.split('.')
 
           if (
             extrinsic.signature &&
@@ -115,11 +108,8 @@ processor.run(new TypeormDatabase(), async (ctx) => {
             extrinsic.signature.address.__kind &&
             extrinsic.signature.address.__kind === 'Id'
           ) {
-            signer = extrinsic.signature.address.value;
-            encodedSignerAccount = encodeAccount(
-              signer,
-              chainConfig.srcConfig.prefix
-            );
+            signer = extrinsic.signature.address.value
+            encodedSignerAccount = encodeAccount(signer, CHAIN_CONFIG.prefix)
           }
 
           const newExtrinsic = new Extrinsic({
@@ -136,7 +126,7 @@ processor.run(new TypeormDatabase(), async (ctx) => {
             success: extrinsic.success,
             tip: extrinsic.tip,
             fee: extrinsic.fee
-          });
+          })
 
           const newCall = new Call({
             id: item.call.id,
@@ -151,45 +141,41 @@ processor.run(new TypeormDatabase(), async (ctx) => {
             success: extrinsic.success,
             callerPublicKey: signer,
             callerAccount: encodedSignerAccount
-          });
+          })
 
-          if (
-            // @ts-ignore
-            !BLACKLIST.includes(item.call.name)
-          ) {
+          ItemsLogger.add(item.call.name)
+          ItemsLogger.add(newCall.palletName)
+
+          if (!BLACKLIST_CONFIG.blacklistItems.includes(item.call.name)) {
             try {
-              newCall.argsStr = getParsedArgs(item.call.args);
-              // TESTING
-              const argLen = newCall.argsStr.length;
-              ItemsLogger.add(item.call.name, argLen);
+              newCall.argsStr = getParsedArgs(item.call.args)
             } catch (e) {
               ctx.log.warn(
                 `Event args cannot be stringified in call ${item.call.id}.`
-              );
-              console.dir(e, { depth: null });
+              )
+              console.dir(e, { depth: null })
             }
           }
 
-          entitiesStore.get('call')!.set(newCall.id, newCall);
-          entitiesStore.get('extrinsic')!.set(newExtrinsic.id, newExtrinsic);
+          entitiesStore.get('call')!.set(newCall.id, newCall)
+          entitiesStore.get('extrinsic')!.set(newExtrinsic.id, newExtrinsic)
 
-          break;
+          break
         }
         default:
       }
     }
   }
+  await ItemsLogger.saveToDB({ block: ctx.blocks[0] as any, ...ctx })
+  if (entitiesStore.get('block')!.size > 0)
+    await ctx.store.insert([...entitiesStore.get('block')!.values()])
 
-  ItemsLogger.printStats();
-  // if (entitiesStore.get('block')!.size > 0)
-  //   await ctx.store.insert([...entitiesStore.get('block')!.values()]);
+  if (entitiesStore.get('extrinsic')!.size > 0)
+    await ctx.store.insert([...entitiesStore.get('extrinsic')!.values()])
 
-  // if (entitiesStore.get('extrinsic')!.size > 0)
-  //   await ctx.store.insert([...entitiesStore.get('extrinsic')!.values()]);
+  if (entitiesStore.get('call')!.size > 0)
+    await ctx.store.insert([...entitiesStore.get('call')!.values()])
 
-  // if (entitiesStore.get('call')!.size > 0)
-  //   await ctx.store.insert([...entitiesStore.get('call')!.values()]);
-
-  // if (entitiesStore.get('event')!.size > 0)
-  //   await ctx.store.insert([...entitiesStore.get('event')!.values()]);
-});
+  if (entitiesStore.get('event')!.size > 0)
+    await ctx.store.insert([...entitiesStore.get('event')!.values()])
+})

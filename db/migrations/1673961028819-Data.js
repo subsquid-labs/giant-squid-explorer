@@ -1,5 +1,5 @@
-module.exports = class Data1672420628490 {
-  name = 'Data1672420628490'
+module.exports = class Data1673961028819 {
+  name = 'Data1673961028819'
 
   async up(db) {
     await db.query(`CREATE TABLE "call" ("id" character varying NOT NULL, "parent_id" text, "extrinsic_hash" text, "block_number" integer NOT NULL, "timestamp" TIMESTAMP WITH TIME ZONE NOT NULL, "call_name" text NOT NULL, "pallet_name" text NOT NULL, "success" boolean NOT NULL, "caller_public_key" text, "caller_account" text, "args_str" text array, "block_id" character varying, "extrinsic_id" character varying, CONSTRAINT "PK_2098af0169792a34f9cfdd39c47" PRIMARY KEY ("id"))`)
@@ -40,6 +40,8 @@ module.exports = class Data1672420628490 {
     await db.query(`CREATE INDEX "IDX_f8fba63d7965bfee9f304c487a" ON "block" ("hash") `)
     await db.query(`CREATE INDEX "IDX_cb4ef42b2c566c2a8045aa97b6" ON "block" ("parent_hash") `)
     await db.query(`CREATE INDEX "IDX_5c67cbcf4960c1a39e5fe25e87" ON "block" ("timestamp") `)
+    await db.query(`CREATE TABLE "items_counter" ("id" character varying NOT NULL, "total" integer NOT NULL, CONSTRAINT "PK_161dcf46142538463f5d7174793" PRIMARY KEY ("id"))`)
+    await db.query(`CREATE INDEX "IDX_e03dd1c60ac7622914f72ac2f1" ON "items_counter" ("total") `)
     await db.query(`ALTER TABLE "call" ADD CONSTRAINT "FK_bd3f11fd4110d60ac8b96cd62f3" FOREIGN KEY ("block_id") REFERENCES "block"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
     await db.query(`ALTER TABLE "call" ADD CONSTRAINT "FK_dde30e4f2c6a80f9236bfdf2590" FOREIGN KEY ("extrinsic_id") REFERENCES "extrinsic"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
     await db.query(`ALTER TABLE "event" ADD CONSTRAINT "FK_2b0d35d675c4f99751855c45021" FOREIGN KEY ("block_id") REFERENCES "block"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
@@ -87,6 +89,8 @@ module.exports = class Data1672420628490 {
     await db.query(`DROP INDEX "public"."IDX_f8fba63d7965bfee9f304c487a"`)
     await db.query(`DROP INDEX "public"."IDX_cb4ef42b2c566c2a8045aa97b6"`)
     await db.query(`DROP INDEX "public"."IDX_5c67cbcf4960c1a39e5fe25e87"`)
+    await db.query(`DROP TABLE "items_counter"`)
+    await db.query(`DROP INDEX "public"."IDX_e03dd1c60ac7622914f72ac2f1"`)
     await db.query(`ALTER TABLE "call" DROP CONSTRAINT "FK_bd3f11fd4110d60ac8b96cd62f3"`)
     await db.query(`ALTER TABLE "call" DROP CONSTRAINT "FK_dde30e4f2c6a80f9236bfdf2590"`)
     await db.query(`ALTER TABLE "event" DROP CONSTRAINT "FK_2b0d35d675c4f99751855c45021"`)

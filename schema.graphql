@@ -58,3 +58,8 @@ type Call @entity @index(fields: ["callName", "palletName"]) {
   callerAccount: String @index
   argsStr: [String]
 }
+
+type ItemsCounter @entity {
+  id: ID!
+  total: Int! @index
+}

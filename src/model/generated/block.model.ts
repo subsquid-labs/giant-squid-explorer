@@ -1,7 +1,7 @@
 import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, Index as Index_, OneToMany as OneToMany_} from "typeorm"
-import {Event} from "./event.model"
 import {Extrinsic} from "./extrinsic.model"
 import {Call} from "./call.model"
+import {Event} from "./event.model"
 
 @Entity_()
 export class Block {
@@ -31,12 +31,12 @@ export class Block {
   @Column_("timestamp with time zone", {nullable: false})
   timestamp!: Date
 
-  @OneToMany_(() => Event, e => e.block)
-  events!: Event[]
-
   @OneToMany_(() => Extrinsic, e => e.block)
   extrinsics!: Extrinsic[]
 
   @OneToMany_(() => Call, e => e.block)
   calls!: Call[]
+
+  @OneToMany_(() => Event, e => e.block)
+  events!: Event[]
 }

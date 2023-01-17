@@ -1,67 +1,181 @@
-import { lookupArchive } from '@subsquid/archive-registry';
+import { BLACKLIST_CONFIG, getChainConfig } from './config'
+import { TypeormDatabase } from '@subsquid/typeorm-store'
+import { Block as BlockEntity, Call, Event, Extrinsic } from './model'
 import {
-  BatchContext,
-  BatchProcessorItem,
+  BatchProcessorCallItem,
   SubstrateBatchProcessor,
-  BatchBlock
-} from '@subsquid/substrate-processor';
-import { Store, TypeormDatabase } from '@subsquid/processor-tools';
-import { getParsedEventsData } from './mappers/common';
-import { blocksHandler } from './mappers/blocks';
-import {
-  BlockData,
-  ChainDataName,
-  ExtrinsicData,
-  EventData
-} from './utils/types';
-import { Block as BlockEntity } from './model';
-import { classExtrinsicsHandler } from './mappers/callsExtrinsics';
-import { eventsHandler } from "./mappers/events";
+  SubstrateBlock
+} from '@subsquid/substrate-processor'
+import { encodeAccount, getParsedArgs, ItemsLogger } from './utils/common'
+
+const CHAIN_CONFIG = getChainConfig()
 
 const processor = new SubstrateBatchProcessor()
-  .setDataSource({
-    archive: lookupArchive('bifrost', { release: 'FireSquid' })
-  })
+  .setBlockRange(CHAIN_CONFIG.blockRange ?? { from: 10_000_000 })
+  .setDataSource(CHAIN_CONFIG.dataSource)
   .addEvent('*', {
     data: {
       event: {
-        // args: true,
         extrinsic: true,
-        indexInBlock: true
+        indexInBlock: true,
+        args: true
       }
     }
   } as const)
-  .addCall('*');
+  .addCall('*', {
+    data: {
+      call: {
+        parent: true,
+        args: true
+      },
+      extrinsic: true
+    }
+  } as const)
+  .includeAllBlocks()
 
-export type Item = BatchProcessorItem<typeof processor>;
-export type Ctx = BatchContext<Store, Item>;
-export type Block = BatchBlock<Item>;
+type CallItem = BatchProcessorCallItem<typeof processor>
 
 processor.run(new TypeormDatabase(), async (ctx) => {
-  const parsedData = getParsedEventsData(ctx);
+  const entitiesStore = new Map<
+    'block' | 'event' | 'call' | 'extrinsic',
+    Map<string, BlockEntity | Event | Call | Extrinsic>
+  >()
+  entitiesStore.set('block', new Map())
+  entitiesStore.set('event', new Map())
+  entitiesStore.set('call', new Map())
+  entitiesStore.set('extrinsic', new Map())
 
-  await ctx.store
-    .deferredLoad(BlockEntity, [
-      ...[...parsedData.get<BlockData>(ChainDataName.BLOCK).values()].map(
-        (b) => b.id
-      ),
-      ...[
-        ...parsedData.get<ExtrinsicData>(ChainDataName.EXTRINSIC).values()
-      ].map((ex) => ex.blockId),
-      ...[...parsedData.get<EventData>(ChainDataName.EVENT).values()].map(
-        (e) => e.blockId
-      )
-    ])
-    .load();
+  if (!ItemsLogger.isInitialized())
+    await ItemsLogger.init({ block: ctx.blocks[0] as any, ...ctx })
+  for (let block of ctx.blocks) {
+    const currentBlock = new BlockEntity({
+      id: block.header.id,
+      height: block.header.height,
+      hash: block.header.hash,
+      parentHash: block.header.parentHash,
+      timestamp: new Date(block.header.timestamp)
+    })
 
-  await blocksHandler(ctx, parsedData.get<BlockData>(ChainDataName.BLOCK));
+    entitiesStore.get('block')!.set(currentBlock.id, currentBlock)
 
-  await classExtrinsicsHandler(
-    ctx,
-    parsedData.get<ExtrinsicData>(ChainDataName.EXTRINSIC)
-  );
-  await eventsHandler(
-    ctx,
-    parsedData.get<EventData>(ChainDataName.EVENT)
-  );
-});
+    for (let item of block.items) {
+      switch (item.kind) {
+        case 'event': {
+          const { id, name, indexInBlock, extrinsic, args } = item.event
+
+          const decoratedName = name.split('.')
+
+          const newEvent = new Event({
+            id,
+            block: currentBlock,
+            blockNumber: currentBlock.height,
+            timestamp: currentBlock.timestamp,
+            indexInBlock: indexInBlock ?? null,
+            palletName: decoratedName[0],
+            eventName: decoratedName[1]
+          })
+
+          ItemsLogger.add(name)
+          ItemsLogger.add(newEvent.palletName)
+
+          if (!BLACKLIST_CONFIG.blacklistItems.includes(name))
+            try {
+              newEvent.argsStr = getParsedArgs(args)
+            } catch (e) {
+              ctx.log.warn('Event args cannot be stringified.')
+              console.dir(e, { depth: null })
+            }
+
+          if (extrinsic) {
+            // @ts-ignore
+            newEvent.extrinsic = { id: extrinsic.id }
+            newEvent.extrinsicHash = extrinsic.hash
+            // @ts-ignore
+            newEvent.call = { id: extrinsic.call.id }
+          }
+          entitiesStore.get('event')!.set(newEvent.id, newEvent)
+          break
+        }
+        case 'call': {
+          const { extrinsic }: CallItem = item
+          let signer: string | null = null
+          let encodedSignerAccount: string | null = null
+          const decoratedCallName = item.call.name.split('.')
+
+          if (
+            extrinsic.signature &&
+            extrinsic.signature.address &&
+            extrinsic.signature.address.__kind &&
+            extrinsic.signature.address.__kind === 'Id'
+          ) {
+            signer = extrinsic.signature.address.value
+            encodedSignerAccount = encodeAccount(signer, CHAIN_CONFIG.prefix)
+          }
+
+          const newExtrinsic = new Extrinsic({
+            id: item.extrinsic.id,
+            block: currentBlock,
+            blockNumber: currentBlock.height,
+            timestamp: currentBlock.timestamp,
+            extrinsicHash: extrinsic.hash,
+            indexInBlock: extrinsic.indexInBlock,
+            version: extrinsic.version,
+            signerPublicKey: signer,
+            signerAccount: encodedSignerAccount,
+            error: extrinsic.error ? JSON.stringify(extrinsic.error) : null,
+            success: extrinsic.success,
+            tip: extrinsic.tip,
+            fee: extrinsic.fee
+          })
+
+          const newCall = new Call({
+            id: item.call.id,
+            palletName: decoratedCallName[0],
+            callName: decoratedCallName[1],
+            parentId: item.call.parent ? item.call.parent.id : null,
+            blockNumber: currentBlock.height,
+            timestamp: currentBlock.timestamp,
+            block: currentBlock,
+            extrinsic: newExtrinsic,
+            extrinsicHash: newExtrinsic.extrinsicHash,
+            success: extrinsic.success,
+            callerPublicKey: signer,
+            callerAccount: encodedSignerAccount
+          })
+
+          ItemsLogger.add(item.call.name)
+          ItemsLogger.add(newCall.palletName)
+
+          if (!BLACKLIST_CONFIG.blacklistItems.includes(item.call.name)) {
+            try {
+              newCall.argsStr = getParsedArgs(item.call.args)
+            } catch (e) {
+              ctx.log.warn(
+                `Event args cannot be stringified in call ${item.call.id}.`
+              )
+              console.dir(e, { depth: null })
+            }
+          }
+
+          entitiesStore.get('call')!.set(newCall.id, newCall)
+          entitiesStore.get('extrinsic')!.set(newExtrinsic.id, newExtrinsic)
+
+          break
+        }
+        default:
+      }
+    }
+  }
+  await ItemsLogger.saveToDB({ block: ctx.blocks[0] as any, ...ctx })
+  if (entitiesStore.get('block')!.size > 0)
+    await ctx.store.insert([...entitiesStore.get('block')!.values()])
+
+  if (entitiesStore.get('extrinsic')!.size > 0)
+    await ctx.store.insert([...entitiesStore.get('extrinsic')!.values()])
+
+  if (entitiesStore.get('call')!.size > 0)
+    await ctx.store.insert([...entitiesStore.get('call')!.values()])
+
+  if (entitiesStore.get('event')!.size > 0)
+    await ctx.store.insert([...entitiesStore.get('event')!.values()])
+})

@@ -1,7 +1,8 @@
-import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, ManyToOne as ManyToOne_, Index as Index_} from "typeorm"
+import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, Index as Index_, ManyToOne as ManyToOne_} from "typeorm"
 import {Block} from "./block.model"
 import {Extrinsic} from "./extrinsic.model"
 
+@Index_(["callName", "palletName"], {unique: false})
 @Entity_()
 export class Call {
   constructor(props?: Partial<Call>) {
@@ -10,6 +11,10 @@ export class Call {
 
   @PrimaryColumn_()
   id!: string
+
+  @Index_()
+  @Column_("text", {nullable: true})
+  parentId!: string | undefined | null
 
   @Index_()
   @ManyToOne_(() => Block, {nullable: true})
@@ -31,11 +36,25 @@ export class Call {
   @Column_("timestamp with time zone", {nullable: false})
   timestamp!: Date
 
+  @Column_("text", {nullable: false})
+  callName!: string
+
   @Index_()
   @Column_("text", {nullable: false})
-  name!: string
+  palletName!: string
 
   @Index_()
   @Column_("bool", {nullable: false})
   success!: boolean
+
+  @Index_()
+  @Column_("text", {nullable: true})
+  callerPublicKey!: string | undefined | null
+
+  @Index_()
+  @Column_("text", {nullable: true})
+  callerAccount!: string | undefined | null
+
+  @Column_("text", {array: true, nullable: true})
+  argsStr!: (string | undefined | null)[] | undefined | null
 }

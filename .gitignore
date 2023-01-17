@@ -1,8 +1,14 @@
 /node_modules
 /lib
+.DS_Store
 
 /**Versions.json
 /**Versions.jsonl
 
+*/*.log
+
 # IDE files
 /.idea
+/data
+/data/db_array
+/builds

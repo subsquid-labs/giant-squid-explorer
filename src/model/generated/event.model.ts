@@ -1,7 +1,9 @@
 import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, ManyToOne as ManyToOne_, Index as Index_} from "typeorm"
 import {Block} from "./block.model"
 import {Extrinsic} from "./extrinsic.model"
+import {Call} from "./call.model"
 
+@Index_(["eventName", "palletName"], {unique: false})
 @Entity_()
 export class Event {
   constructor(props?: Partial<Event>) {
@@ -35,14 +37,20 @@ export class Event {
   extrinsic!: Extrinsic | undefined | null
 
   @Index_()
+  @ManyToOne_(() => Call, {nullable: true})
+  call!: Call | undefined | null
+
+  @Index_()
   @Column_("int4", {nullable: true})
   indexInBlock!: number | undefined | null
 
-  @Index_()
   @Column_("text", {nullable: false})
-  name!: string
+  eventName!: string
 
   @Index_()
-  @Column_("text", {nullable: true})
-  strArgs!: string | undefined | null
+  @Column_("text", {nullable: false})
+  palletName!: string
+
+  @Column_("text", {array: true, nullable: true})
+  argsStr!: (string | undefined | null)[] | undefined | null
 }

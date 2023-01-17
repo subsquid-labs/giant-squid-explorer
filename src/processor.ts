@@ -11,7 +11,7 @@ import { encodeAccount, getParsedArgs, ItemsLogger } from './utils/common'
 const CHAIN_CONFIG = getChainConfig()
 
 const processor = new SubstrateBatchProcessor()
-  .setBlockRange(CHAIN_CONFIG.blockRange ?? { from: 10_000_000 })
+  //.setBlockRange(CHAIN_CONFIG.blockRange ?? { from: 10_000_000 })
   .setDataSource(CHAIN_CONFIG.dataSource)
   .addEvent('*', {
     data: {

@@ -3,9 +3,7 @@ import { TypeormDatabase } from '@subsquid/typeorm-store'
 import { Block as BlockEntity, Call, Event, Extrinsic } from './model'
 import {
   BatchProcessorCallItem,
-  SubstrateBatchProcessor,
-  SubstrateBlock
-} from '@subsquid/substrate-processor'
+  SubstrateBatchProcessor} from '@subsquid/substrate-processor'
 import { encodeAccount, getParsedArgs, ItemsLogger } from './utils/common'
 
 const CHAIN_CONFIG = getChainConfig()

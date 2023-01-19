@@ -1,6 +1,6 @@
 manifestVersion: subsquid.io/v0.1
 name: caller-squid-moonriver
-version: 2
+version: 3
 description: |-
   Caller squid for Moonriver
 build:
@@ -19,5 +19,5 @@ deploy:
 scale:
   addons:
      postgres:
-         storage: 150G
+         storage: 200G
          profile: large

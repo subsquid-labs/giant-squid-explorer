@@ -1,46 +1,71 @@
-import {
-  ChainDataName,
-  BlockData,
-  EventData,
-  ExtrinsicData,
-  ParsedEventsDataMap,
-  ParsedChainData
-} from './types'
+import { ChainDataName, ParsedEventsDataMap, ParsedChainData } from './types'
 import { getChainConfig, BLACKLIST_CONFIG } from '../config'
 import * as ss58 from '@subsquid/ss58'
 import { decodeHex, toHex } from '@subsquid/util-internal-hex'
 import assert from 'assert'
 import { CommonHandlerContext } from '@subsquid/substrate-processor'
 import { Store } from '@subsquid/typeorm-store'
-import { ItemsCounter } from '../model'
+import { CounterLevel, ItemsCounter, ItemType } from '../model'
 
 const CHAIN_CONFIG = getChainConfig()
 const LIMIT = Number(process.env.LIMIT) ?? 100
+
+interface ICounterNameProps {
+  type: ItemType
+  level: CounterLevel
+  palletName?: string
+  itemName?: string
+}
 
 export class ItemsLogger {
   private static itemsMap = new Map<string, ItemsCounter>()
   private static initilized = false
 
-  static isInitialized = () => ItemsLogger.initilized
+  static isInitialized = () => this.initilized
 
   static async init(ctx: CommonHandlerContext<Store>) {
     const items = await ctx.store.find(ItemsCounter)
     for (const item of items) {
-      ItemsLogger.itemsMap.set(item.id, item)
+      this.itemsMap.set(item.id, item)
     }
-    ItemsLogger.initilized = true
+    this.initilized = true
     ctx.log.info('Items counters were initialized')
   }
 
-  static add(itemName: string) {
-    const curState = ItemsLogger.itemsMap.get(itemName) ?? new ItemsCounter({id: itemName, total: 0})
+  private static _add(item: ICounterNameProps) {
+    const { level, type, palletName, itemName } = item
+    let id = type.toString()
+    if (palletName) id += `.${palletName}`
+    if (itemName) id += `.${itemName}`
+
+    const curState =
+      this.itemsMap.get(id) ?? new ItemsCounter({ id, total: 0, type, level })
     curState.total += 1
-    ItemsLogger.itemsMap.set(itemName, curState)
+    this.itemsMap.set(id, curState)
+  }
+
+  private static _addItem(item: Omit<ICounterNameProps, 'level'>) {
+    const { itemName, palletName, type } = item
+    this._add({ type, palletName, itemName, level: CounterLevel.Item })
+    this._add({ type, palletName, level: CounterLevel.Pallet })
+    this._add({ type, level: CounterLevel.Global })
+  }
+
+  static addEvent = (item: Omit<ICounterNameProps, 'level' | 'type'>) =>
+    this._addItem({ type: ItemType.Events, ...item })
+
+  static addCall(
+    item: Omit<ICounterNameProps, 'level' | 'type'>,
+    isMainInExtrinsic: boolean
+  ) {
+    this._addItem({ type: ItemType.Calls, ...item })
+    if (isMainInExtrinsic)
+      this._addItem({type: ItemType.Extrinsics, ...item })
   }
 
   static async saveToDB(ctx: CommonHandlerContext<Store>) {
-    await ctx.store.save([...ItemsLogger.itemsMap.values()])
-    ctx.log.info('Items counters were saved')
+    await ctx.store.save([...this.itemsMap.values()])
+    //ctx.log.info('Items counters were saved')
   }
 }
 
@@ -90,12 +115,12 @@ function parseArgsHelper(srcNode: any, res: Set<string>): void {
   const handleVertex = (val: any) => {
     if (ArrayBuffer.isView(val) && val.constructor.name === 'Uint8Array') {
       const tr = toHex(val as Uint8Array)
-      if (tr.length < BLACKLIST_CONFIG.argsStringMaxLengthLimit) res.add(tr)
+      if (tr.length <= BLACKLIST_CONFIG.argsStringMaxLengthLimit) res.add(tr)
       return
     }
     if (ArrayBuffer.isView(val) && val.constructor.name !== 'Uint8Array') {
       const tr = val.toString()
-      if (tr.length < BLACKLIST_CONFIG.argsStringMaxLengthLimit) res.add(tr)
+      if (tr.length <= BLACKLIST_CONFIG.argsStringMaxLengthLimit) res.add(tr)
       return
     }
 
@@ -103,7 +128,7 @@ function parseArgsHelper(srcNode: any, res: Set<string>): void {
       case 'string':
         if (
           val.length > 0 &&
-          val.length < BLACKLIST_CONFIG.argsStringMaxLengthLimit
+          val.length <= BLACKLIST_CONFIG.argsStringMaxLengthLimit
         ) {
           res.add(val)
         }

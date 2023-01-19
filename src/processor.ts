@@ -3,7 +3,8 @@ import { TypeormDatabase } from '@subsquid/typeorm-store'
 import { Block as BlockEntity, Call, Event, Extrinsic } from './model'
 import {
   BatchProcessorCallItem,
-  SubstrateBatchProcessor} from '@subsquid/substrate-processor'
+  SubstrateBatchProcessor
+} from '@subsquid/substrate-processor'
 import { encodeAccount, getParsedArgs, ItemsLogger } from './utils/common'
 
 const CHAIN_CONFIG = getChainConfig()
@@ -73,8 +74,10 @@ processor.run(new TypeormDatabase(), async (ctx) => {
             eventName: decoratedName[1]
           })
 
-          ItemsLogger.add(name)
-          ItemsLogger.add(newEvent.palletName)
+          ItemsLogger.addEvent({
+            itemName: newEvent.eventName,
+            palletName: newEvent.palletName
+          })
 
           if (!BLACKLIST_CONFIG.blacklistItems.includes(name))
             try {
@@ -100,13 +103,11 @@ processor.run(new TypeormDatabase(), async (ctx) => {
           let encodedSignerAccount: string | null = null
           const decoratedCallName = item.call.name.split('.')
 
-          if (
-            extrinsic.signature &&
-            extrinsic.signature.address &&
-            extrinsic.signature.address.__kind &&
-            extrinsic.signature.address.__kind === 'Id'
-          ) {
-            signer = extrinsic.signature.address.value
+          const rawAddress =
+            extrinsic.signature?.address?.value || extrinsic?.signature?.address
+
+          if (rawAddress) {
+            signer = rawAddress
             encodedSignerAccount = encodeAccount(signer, CHAIN_CONFIG.prefix)
           }
 
@@ -130,7 +131,7 @@ processor.run(new TypeormDatabase(), async (ctx) => {
             id: item.call.id,
             palletName: decoratedCallName[0],
             callName: decoratedCallName[1],
-            parentId: item.call.parent ? item.call.parent.id : null,
+            parentId: item.call.parent?.id ?? null,
             blockNumber: currentBlock.height,
             timestamp: currentBlock.timestamp,
             block: currentBlock,
@@ -141,8 +142,15 @@ processor.run(new TypeormDatabase(), async (ctx) => {
             callerAccount: encodedSignerAccount
           })
 
-          ItemsLogger.add(item.call.name)
-          ItemsLogger.add(newCall.palletName)
+          // If this is main call of the extrinsic
+          if (newCall.parentId == null) {
+            newExtrinsic.mainCall = newCall
+          }
+
+          ItemsLogger.addCall(
+            { itemName: newCall.callName, palletName: newCall.palletName },
+            !newCall.parentId
+          )
 
           if (!BLACKLIST_CONFIG.blacklistItems.includes(item.call.name)) {
             try {
@@ -165,15 +173,26 @@ processor.run(new TypeormDatabase(), async (ctx) => {
     }
   }
   await ItemsLogger.saveToDB({ block: ctx.blocks[0] as any, ...ctx })
-  if (entitiesStore.get('block')!.size > 0)
-    await ctx.store.insert([...entitiesStore.get('block')!.values()])
+  const blocks = entitiesStore.get('block')
+  if (blocks && blocks.size > 0) await ctx.store.insert([...blocks.values()])
 
-  if (entitiesStore.get('extrinsic')!.size > 0)
-    await ctx.store.insert([...entitiesStore.get('extrinsic')!.values()])
+  // Save only ids first because of cyclic dependency extrinsic<-->call
+  const extrinsics = entitiesStore.get('extrinsic')
+  if (extrinsics && extrinsics.size > 0) {
+    const extrinsicsIds = [...extrinsics.keys()].map(
+      (id) => new Extrinsic({ id })
+    )
+    await ctx.store.insert(extrinsicsIds)
+  }
 
-  if (entitiesStore.get('call')!.size > 0)
-    await ctx.store.insert([...entitiesStore.get('call')!.values()])
+  const calls = entitiesStore.get('call')
+  if (calls && calls.size > 0) await ctx.store.insert([...calls.values()])
 
-  if (entitiesStore.get('event')!.size > 0)
-    await ctx.store.insert([...entitiesStore.get('event')!.values()])
+  // Save full info of extrinsics
+  if (extrinsics && extrinsics.size > 0) {
+    await ctx.store.save([...extrinsics.values()])
+  }
+
+  const events = entitiesStore.get('event')
+  if (events && events.size > 0) await ctx.store.insert([...events.values()])
 })

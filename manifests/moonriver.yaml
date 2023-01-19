@@ -1,8 +1,8 @@
 manifestVersion: subsquid.io/v0.1
-name: caller-squid-kusama
+name: caller-squid-moonriver
 version: 2
 description: |-
-  Caller squid for Kusama
+  Caller squid for Moonriver
 build:
 
 deploy:
@@ -11,7 +11,7 @@ deploy:
   processor:
     env:
       CHAIN:
-        kusama
+        moonriver
     cmd: [ "node", "lib/processor" ]
   api:
     cmd: [ "npx", "squid-graphql-server", "--dumb-cache", "in-memory", "--dumb-cache-ttl", "1000", "--dumb-cache-size", "100", "--dumb-cache-max-age", "1000" ]
@@ -19,5 +19,5 @@ deploy:
 scale:
   addons:
      postgres:
-         storage: 100G
+         storage: 150G
          profile: large

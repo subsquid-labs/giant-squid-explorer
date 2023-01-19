@@ -17,6 +17,10 @@ export class Extrinsic {
   @ManyToOne_(() => Block, {nullable: true})
   block!: Block
 
+  @Index_()
+  @ManyToOne_(() => Call, {nullable: true})
+  mainCall!: Call
+
   @OneToMany_(() => Call, e => e.extrinsic)
   calls!: Call[]
 

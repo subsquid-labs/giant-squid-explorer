@@ -1,5 +1,5 @@
-module.exports = class Data1673961028900 {
-  name = 'Data1673961028900';
+module.exports = class Indexes1873961028900 {
+  name = 'Indexes1873961028900';
 
   async up(db) {
     await db.query(`CREATE INDEX "event_args_str_gin" ON "event" USING GIN ("args_str") `);

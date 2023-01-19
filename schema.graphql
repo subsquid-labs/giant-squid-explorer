@@ -13,6 +13,7 @@ type Block @entity {
 type Extrinsic @entity {
   id: ID!
   block: Block!
+  mainCall: Call!
   calls: [Call]! @derivedFrom(field: "extrinsic")
   events: [Event]! @derivedFrom(field: "extrinsic")
   blockNumber: Int! @index
@@ -59,7 +60,21 @@ type Call @entity @index(fields: ["callName", "palletName"]) {
   argsStr: [String]
 }
 
+enum CounterLevel {
+  Global
+  Pallet
+  Item
+}
+
+enum ItemType {
+  Extrinsics
+  Calls
+  Events
+}
+
 type ItemsCounter @entity {
   id: ID!
+  type: ItemType! @index
+  level: CounterLevel! @index
   total: Int! @index
 }

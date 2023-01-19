@@ -1,5 +1,5 @@
-module.exports = class Data1674160349896 {
-  name = 'Data1674160349896'
+module.exports = class Data1674160822383 {
+  name = 'Data1674160822383'
 
   async up(db) {
     await db.query(`CREATE TABLE "call" ("id" character varying NOT NULL, "parent_id" text, "extrinsic_hash" text, "block_number" integer NOT NULL, "timestamp" TIMESTAMP WITH TIME ZONE NOT NULL, "call_name" text NOT NULL, "pallet_name" text NOT NULL, "success" boolean NOT NULL, "caller_public_key" text, "caller_account" text, "args_str" text array, "block_id" character varying, "extrinsic_id" character varying, CONSTRAINT "PK_2098af0169792a34f9cfdd39c47" PRIMARY KEY ("id"))`)
@@ -24,7 +24,7 @@ module.exports = class Data1674160349896 {
     await db.query(`CREATE INDEX "IDX_82cf69218fb1debdc0b499d125" ON "event" ("index_in_block") `)
     await db.query(`CREATE INDEX "IDX_fed099a40fd1d0cdd95fe637de" ON "event" ("pallet_name") `)
     await db.query(`CREATE INDEX "IDX_6eb8f0521afac51d39440c61fa" ON "event" ("event_name", "pallet_name") `)
-    await db.query(`CREATE TABLE "extrinsic" ("id" character varying NOT NULL, "block_number" integer NOT NULL, "timestamp" TIMESTAMP WITH TIME ZONE NOT NULL, "extrinsic_hash" text, "index_in_block" integer NOT NULL, "version" integer NOT NULL, "signer_public_key" text, "signer_account" text, "success" boolean NOT NULL, "error" text, "tip" numeric, "fee" numeric, "block_id" character varying, "main_call_id" character varying, CONSTRAINT "PK_80d7db0e4b1e83e30336bc76755" PRIMARY KEY ("id"))`)
+    await db.query(`CREATE TABLE "extrinsic" ("id" character varying NOT NULL, "block_number" integer, "timestamp" TIMESTAMP WITH TIME ZONE, "extrinsic_hash" text, "index_in_block" integer, "version" integer, "signer_public_key" text, "signer_account" text, "success" boolean, "error" text, "tip" numeric, "fee" numeric, "block_id" character varying, "main_call_id" character varying, CONSTRAINT "PK_80d7db0e4b1e83e30336bc76755" PRIMARY KEY ("id"))`)
     await db.query(`CREATE INDEX "IDX_a3b99daba1259dab0dd040d4f7" ON "extrinsic" ("block_id") `)
     await db.query(`CREATE INDEX "IDX_18672480b054fc21d880ae281e" ON "extrinsic" ("main_call_id") `)
     await db.query(`CREATE INDEX "IDX_142f352835c698a35eacbeb2f5" ON "extrinsic" ("block_number") `)

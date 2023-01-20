@@ -12,24 +12,24 @@ type Block @entity {
 
 type Extrinsic @entity {
   id: ID!
-  block: Block!
-  mainCall: Call!
+  block: Block
+  mainCall: Call
   calls: [Call]! @derivedFrom(field: "extrinsic")
   events: [Event]! @derivedFrom(field: "extrinsic")
-  blockNumber: Int! @index
-  timestamp: DateTime! @index
+  blockNumber: Int @index
+  timestamp: DateTime @index
   extrinsicHash: String @index
-  indexInBlock: Int! @index
-  version: Int! @index
+  indexInBlock: Int @index
+  version: Int @index
   signerPublicKey: String @index
   signerAccount: String @index
-  success: Boolean! @index
+  success: Boolean @index
   error: String
   tip: BigInt
   fee: BigInt @index
 }
 
-type Event @entity @index(fields: ["eventName", "palletName"]) {
+type Event @entity @index(fields: ["id","palletName","eventName"]) {
   "Event id - e.g. 0000000001-000000-272d6"
   id: ID!
   block: Block!
@@ -44,7 +44,7 @@ type Event @entity @index(fields: ["eventName", "palletName"]) {
   argsStr: [String]
 }
 
-type Call @entity @index(fields: ["callName", "palletName"]) {
+type Call @entity @index(fields: ["id","palletName","callName"]) {
   id: ID!
   parentId: String @index
   block: Block!

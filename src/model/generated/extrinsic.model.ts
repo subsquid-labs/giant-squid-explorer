@@ -15,11 +15,11 @@ export class Extrinsic {
 
   @Index_()
   @ManyToOne_(() => Block, {nullable: true})
-  block!: Block
+  block!: Block | undefined | null
 
   @Index_()
   @ManyToOne_(() => Call, {nullable: true})
-  mainCall!: Call
+  mainCall!: Call | undefined | null
 
   @OneToMany_(() => Call, e => e.extrinsic)
   calls!: Call[]
@@ -28,24 +28,24 @@ export class Extrinsic {
   events!: Event[]
 
   @Index_()
-  @Column_("int4", {nullable: false})
-  blockNumber!: number
+  @Column_("int4", {nullable: true})
+  blockNumber!: number | undefined | null
 
   @Index_()
-  @Column_("timestamp with time zone", {nullable: false})
-  timestamp!: Date
+  @Column_("timestamp with time zone", {nullable: true})
+  timestamp!: Date | undefined | null
 
   @Index_()
   @Column_("text", {nullable: true})
   extrinsicHash!: string | undefined | null
 
   @Index_()
-  @Column_("int4", {nullable: false})
-  indexInBlock!: number
+  @Column_("int4", {nullable: true})
+  indexInBlock!: number | undefined | null
 
   @Index_()
-  @Column_("int4", {nullable: false})
-  version!: number
+  @Column_("int4", {nullable: true})
+  version!: number | undefined | null
 
   @Index_()
   @Column_("text", {nullable: true})
@@ -56,8 +56,8 @@ export class Extrinsic {
   signerAccount!: string | undefined | null
 
   @Index_()
-  @Column_("bool", {nullable: false})
-  success!: boolean
+  @Column_("bool", {nullable: true})
+  success!: boolean | undefined | null
 
   @Column_("text", {nullable: true})
   error!: string | undefined | null

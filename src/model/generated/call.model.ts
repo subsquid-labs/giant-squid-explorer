@@ -2,7 +2,7 @@ import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, I
 import {Block} from "./block.model"
 import {Extrinsic} from "./extrinsic.model"
 
-@Index_(["callName", "palletName"], {unique: false})
+@Index_(["id", "palletName", "callName"], {unique: false})
 @Entity_()
 export class Call {
   constructor(props?: Partial<Call>) {
@@ -36,6 +36,7 @@ export class Call {
   @Column_("timestamp with time zone", {nullable: false})
   timestamp!: Date
 
+  @Index_()
   @Column_("text", {nullable: false})
   callName!: string
 

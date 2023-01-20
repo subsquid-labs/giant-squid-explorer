@@ -1,8 +1,8 @@
 manifestVersion: subsquid.io/v0.1
-name: caller-squid-kusama
+name: caller-squid-acala
 version: 3
 description: |-
-  Caller squid for Kusama
+  Caller squid for acala
 build:
 
 deploy:
@@ -11,7 +11,7 @@ deploy:
   processor:
     env:
       CHAIN:
-        kusama
+        acala
     cmd: [ "node", "lib/processor" ]
   api:
     cmd: [ "npx", "squid-graphql-server", "--dumb-cache", "in-memory", "--dumb-cache-ttl", "1000", "--dumb-cache-size", "100", "--dumb-cache-max-age", "1000" ]
@@ -19,5 +19,5 @@ deploy:
 scale:
   addons:
      postgres:
-         storage: 200G
-         profile: large
+         storage: 100G
+         profile: medium

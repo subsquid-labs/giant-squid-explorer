@@ -1,6 +1,6 @@
 manifestVersion: subsquid.io/v0.1
 name: caller-squid-polkadot
-version: 2
+version: 3
 description: |-
   Caller squid for Polkadot
 build:

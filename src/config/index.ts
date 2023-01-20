@@ -25,6 +25,8 @@ export function getChainConfig(): ProcessorConfig {
       return require('./polkadot').default
     case 'acala':
       return require('./acala').default
+      case 'karura':
+        return require('./karura').default
     case 'moonriver':
       return require('./moonriver').default
     case 'moonbeam':
@@ -37,6 +39,8 @@ export function getChainConfig(): ProcessorConfig {
       return require('./phala').default
     case 'gmordie':
       return require('./gmordie').default
+    case 'astar':
+      return require('./astar').default
     default:
       throw new Error(`Unsupported chain ${process.env.CHAIN}`)
   }

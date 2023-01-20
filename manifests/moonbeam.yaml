@@ -1,6 +1,6 @@
 manifestVersion: subsquid.io/v0.1
 name: caller-squid-moonbeam
-version: 2
+version: 3
 description: |-
   Caller squid for Moonbeam
 build:
@@ -17,7 +17,9 @@ deploy:
     cmd: [ "npx", "squid-graphql-server", "--dumb-cache", "in-memory", "--dumb-cache-ttl", "1000", "--dumb-cache-size", "100", "--dumb-cache-max-age", "1000" ]
 
 scale:
+  processor:
+    profile: large
   addons:
      postgres:
-         storage: 150G
+         storage: 200G
          profile: large

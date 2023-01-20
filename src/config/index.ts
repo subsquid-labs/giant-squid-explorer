@@ -25,6 +25,8 @@ export function getChainConfig(): ProcessorConfig {
       return require('./polkadot').default
     case 'acala':
       return require('./acala').default
+      case 'karura':
+        return require('./karura').default
     case 'moonriver':
       return require('./moonriver').default
     case 'moonbeam':

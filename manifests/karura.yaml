@@ -1,8 +1,8 @@
 manifestVersion: subsquid.io/v0.1
-name: caller-squid-karura
-version: 3
+name: gs-explorer-karura
+version: 1
 description: |-
-  Caller squid for karura
+  Giant Squid Explorer for Karura chain
 build:
 
 deploy:
@@ -20,4 +20,4 @@ scale:
   addons:
      postgres:
          storage: 150G
-         profile: large
+         profile: medium

@@ -1,8 +1,8 @@
 manifestVersion: subsquid.io/v0.1
-name: caller-squid-phala
-version: 3
+name: gs-explorer-phala
+version: 1
 description: |-
-  Caller squid for phala
+  Giant Squid Explorer for Phala chain
 build:
 
 deploy:
@@ -19,5 +19,5 @@ deploy:
 scale:
   addons:
      postgres:
-         storage: 50G
+         storage: 30G
          profile: small

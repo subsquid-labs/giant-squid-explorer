@@ -1,8 +1,8 @@
 manifestVersion: subsquid.io/v0.1
-name: caller-squid-moonbeam
-version: 3
+name: gs-explorer-moonbeam
+version: 1
 description: |-
-  Caller squid for Moonbeam
+  Giant Squid Explorer for Moonbeam chain
 build:
 
 deploy:
@@ -19,5 +19,5 @@ deploy:
 scale:
   addons:
      postgres:
-         storage: 200G
+         storage: 250G
          profile: large

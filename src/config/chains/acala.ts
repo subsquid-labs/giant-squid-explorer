@@ -1,4 +1,4 @@
-import { ProcessorConfig } from './processorConfig';
+import { ProcessorConfig } from '../processorConfig'
 
 const config: ProcessorConfig = {
   chainName: 'acala',
@@ -7,6 +7,6 @@ const config: ProcessorConfig = {
     archive: 'https://acala.archive.subsquid.io/graphql',
     chain: 'wss://acala-rpc-2.aca-api.network/ws'
   }
-};
+}
 
-export default config;
+export default config

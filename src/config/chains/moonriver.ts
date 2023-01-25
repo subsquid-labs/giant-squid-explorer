@@ -1,4 +1,4 @@
-import { ProcessorConfig } from './processorConfig'
+import { ProcessorConfig } from '../processorConfig'
 
 const config: ProcessorConfig = {
   chainName: 'moonriver',

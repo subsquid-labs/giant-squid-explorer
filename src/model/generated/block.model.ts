@@ -23,13 +23,29 @@ export class Block {
   @Column_("text", {nullable: false})
   hash!: string
 
-  @Index_()
   @Column_("text", {nullable: false})
   parentHash!: string
 
   @Index_()
   @Column_("timestamp with time zone", {nullable: false})
   timestamp!: Date
+
+  @Index_()
+  @Column_("int4", {nullable: false})
+  specVersion!: number
+
+  @Index_()
+  @Column_("text", {nullable: true})
+  validator!: string | undefined | null
+
+  @Column_("int4", {nullable: false})
+  extrinsicsCount!: number
+
+  @Column_("int4", {nullable: false})
+  callsCount!: number
+
+  @Column_("int4", {nullable: false})
+  eventsCount!: number
 
   @OneToMany_(() => Extrinsic, e => e.block)
   extrinsics!: Extrinsic[]

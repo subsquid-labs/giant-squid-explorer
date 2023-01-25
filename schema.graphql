@@ -3,8 +3,13 @@ type Block @entity {
   id: ID!
   height: Int! @index
   hash: String! @index
-  parentHash: String! @index
+  parentHash: String!
   timestamp: DateTime! @index
+  specVersion: Int! @index
+  validator: String @index
+  extrinsicsCount: Int!
+  callsCount: Int!
+  eventsCount: Int!
   extrinsics: [Extrinsic]! @derivedFrom(field: "block")
   calls: [Call]! @derivedFrom(field: "block")
   events: [Event]! @derivedFrom(field: "block")
@@ -19,14 +24,13 @@ type Extrinsic @entity {
   blockNumber: Int @index
   timestamp: DateTime @index
   extrinsicHash: String @index
-  indexInBlock: Int @index
+  indexInBlock: Int
   version: Int @index
   signerPublicKey: String @index
-  signerAccount: String @index
   success: Boolean @index
   error: String
   tip: BigInt
-  fee: BigInt @index
+  fee: BigInt
 }
 
 type Event @entity @index(fields: ["id","palletName","eventName"]) {
@@ -38,7 +42,7 @@ type Event @entity @index(fields: ["id","palletName","eventName"]) {
   extrinsicHash: String @index
   extrinsic: Extrinsic
   call: Call
-  indexInBlock: Int @index
+  indexInBlock: Int
   eventName: String! @index
   palletName: String! @index
   argsStr: [String]
@@ -56,7 +60,6 @@ type Call @entity @index(fields: ["id","palletName","callName"]) {
   palletName: String! @index
   success: Boolean! @index
   callerPublicKey: String @index
-  callerAccount: String @index
   argsStr: [String]
 }
 

@@ -52,14 +52,19 @@ processor.run(new TypeormDatabase(), async (ctx) => {
       height: block.header.height,
       hash: block.header.hash,
       parentHash: block.header.parentHash,
-      timestamp: new Date(block.header.timestamp)
+      timestamp: new Date(block.header.timestamp),
+      specVersion: Number(block.header.specId.split('@')[1]),
+      validator: block.header.validator,
+      extrinsicsCount: 0,
+      callsCount: 0,
+      eventsCount: 0
     })
-
     entitiesStore.get('block')!.set(currentBlock.id, currentBlock)
 
     for (let item of block.items) {
       switch (item.kind) {
         case 'event': {
+          currentBlock.eventsCount += 1
           const { id, name, indexInBlock, extrinsic, args } = item.event
 
           const decoratedName = name.split('.')
@@ -98,19 +103,20 @@ processor.run(new TypeormDatabase(), async (ctx) => {
           break
         }
         case 'call': {
+          currentBlock.callsCount += 1
           const { extrinsic }: CallItem = item
-          let signer: string | null = null
-          let encodedSignerAccount: string | null = null
           const decoratedCallName = item.call.name.split('.')
-
           const rawAddress =
             extrinsic.signature?.address?.value || extrinsic?.signature?.address
 
-          if (rawAddress) {
-            signer = rawAddress
-            encodedSignerAccount = encodeAccount(signer, CHAIN_CONFIG.prefix)
-          }
+          // Removed address encoding
 
+          // let signer: string | null = null
+          // let encodedSignerAccount: string | null = null
+          // if (rawAddress) {
+          //   signer = rawAddress
+          //   encodedSignerAccount = encodeAccount(signer, CHAIN_CONFIG.prefix)
+          // }
           const newExtrinsic = new Extrinsic({
             id: item.extrinsic.id,
             block: currentBlock,
@@ -119,8 +125,7 @@ processor.run(new TypeormDatabase(), async (ctx) => {
             extrinsicHash: extrinsic.hash,
             indexInBlock: extrinsic.indexInBlock,
             version: extrinsic.version,
-            signerPublicKey: signer,
-            signerAccount: encodedSignerAccount,
+            signerPublicKey: rawAddress,
             error: extrinsic.error ? JSON.stringify(extrinsic.error) : null,
             success: extrinsic.success,
             tip: extrinsic.tip,
@@ -138,12 +143,12 @@ processor.run(new TypeormDatabase(), async (ctx) => {
             extrinsic: newExtrinsic,
             extrinsicHash: newExtrinsic.extrinsicHash,
             success: extrinsic.success,
-            callerPublicKey: signer,
-            callerAccount: encodedSignerAccount
+            callerPublicKey: rawAddress
           })
 
           // If this is main call of the extrinsic
           if (newCall.parentId == null) {
+            currentBlock.extrinsicsCount += 1
             newExtrinsic.mainCall = newCall
           }
 

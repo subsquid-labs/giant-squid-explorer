@@ -52,10 +52,6 @@ export class Call {
   @Column_("text", {nullable: true})
   callerPublicKey!: string | undefined | null
 
-  @Index_()
-  @Column_("text", {nullable: true})
-  callerAccount!: string | undefined | null
-
   @Column_("text", {array: true, nullable: true})
   argsStr!: (string | undefined | null)[] | undefined | null
 }

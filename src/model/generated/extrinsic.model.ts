@@ -39,7 +39,6 @@ export class Extrinsic {
   @Column_("text", {nullable: true})
   extrinsicHash!: string | undefined | null
 
-  @Index_()
   @Column_("int4", {nullable: true})
   indexInBlock!: number | undefined | null
 
@@ -52,10 +51,6 @@ export class Extrinsic {
   signerPublicKey!: string | undefined | null
 
   @Index_()
-  @Column_("text", {nullable: true})
-  signerAccount!: string | undefined | null
-
-  @Index_()
   @Column_("bool", {nullable: true})
   success!: boolean | undefined | null
 
@@ -65,7 +60,6 @@ export class Extrinsic {
   @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: true})
   tip!: bigint | undefined | null
 
-  @Index_()
   @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: true})
   fee!: bigint | undefined | null
 }

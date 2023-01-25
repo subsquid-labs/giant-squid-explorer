@@ -40,7 +40,6 @@ export class Event {
   @ManyToOne_(() => Call, {nullable: true})
   call!: Call | undefined | null
 
-  @Index_()
   @Column_("int4", {nullable: true})
   indexInBlock!: number | undefined | null
 

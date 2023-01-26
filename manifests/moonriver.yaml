@@ -1,8 +1,8 @@
 manifestVersion: subsquid.io/v0.1
-name: caller-squid-moonriver
-version: 3
+name: gs-explorer-moonriver
+version: 1
 description: |-
-  Caller squid for Moonriver
+  Giant Squid Explorer for Moonriver chain
 build:
 
 deploy:

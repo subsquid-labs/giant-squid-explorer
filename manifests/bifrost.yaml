@@ -1,8 +1,8 @@
 manifestVersion: subsquid.io/v0.1
-name: caller-squid-bifrost
-version: 3
+name: gs-explorer-bifrost
+version: 1
 description: |-
-  Caller squid for bifrost
+  Giant Squid Explorer for Bifrost chain
 build:
 
 deploy:
@@ -19,5 +19,5 @@ deploy:
 scale:
   addons:
      postgres:
-         storage: 50G
+         storage: 30G
          profile: small

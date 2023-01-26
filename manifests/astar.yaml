@@ -1,8 +1,8 @@
 manifestVersion: subsquid.io/v0.1
-name: caller-squid-astar
-version: 3
+name: gs-explorer-astar
+version: 1
 description: |-
-  Caller squid for astar
+  Giant Squid Explorer for Astar chain
 build:
 
 deploy:

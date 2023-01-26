@@ -1,8 +1,8 @@
 manifestVersion: subsquid.io/v0.1
-name: gs-explorer-kusama
+name: gs-explorer-moonbase
 version: 1
 description: |-
-  Giant Squid Explorer for Kusama chain
+  Giant Squid Explorer for Moonbase chain
 build:
 
 deploy:
@@ -11,7 +11,7 @@ deploy:
   processor:
     env:
       CHAIN:
-        kusama
+        moonbase
     cmd: [ "node", "lib/processor" ]
   api:
     cmd: [ "npx", "squid-graphql-server", "--dumb-cache", "in-memory", "--dumb-cache-ttl", "1000", "--dumb-cache-size", "100", "--dumb-cache-max-age", "1000" ]

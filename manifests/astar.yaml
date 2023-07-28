@@ -21,5 +21,5 @@ scale:
     profile: large
   addons:
      postgres:
-         storage: 400G
+         storage: 1000G
          profile: large

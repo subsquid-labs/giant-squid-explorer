@@ -2,7 +2,7 @@ manifestVersion: subsquid.io/v0.1
 name: gs-explorer-bifrost-polkadot
 version: 1
 description: |-
-  Giant Squid Explorer for Bifrost-polkadot chain
+  Giant Squid Explorer for Bifrost Polkadot chain
 build:
 
 deploy:

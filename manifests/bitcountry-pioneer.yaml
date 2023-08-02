@@ -2,7 +2,7 @@ manifestVersion: subsquid.io/v0.1
 name: gs-explorer-bitcountry-pioneer
 version: 1
 description: |-
-  Giant Squid Explorer for Pioneer chain
+  Giant Squid Explorer for Bitcountry Pioneer chain
 build:
 
 deploy:

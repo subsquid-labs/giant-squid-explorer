@@ -1,0 +1,23 @@
+manifestVersion: subsquid.io/v0.1
+name: gs-explorer-aleph-zero-testnet
+version: 1
+description: |-
+  Giant Squid Explorer for Aleph Zero Testnet chain
+build:
+
+deploy:
+  addons:
+    postgres:
+  processor:
+    env:
+      CHAIN:
+        aleph-zero-testnet
+    cmd: [ "node", "lib/processor" ]
+  api:
+    cmd: [ "npx", "squid-graphql-server", "--dumb-cache", "in-memory", "--dumb-cache-ttl", "1000", "--dumb-cache-size", "100", "--dumb-cache-max-age", "1000" ]
+
+scale:
+  addons:
+    postgres:
+      storage: 50G
+      profile: small

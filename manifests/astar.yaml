@@ -20,6 +20,6 @@ scale:
   processor:
     profile: large
   addons:
-     postgres:
-         storage: 1000G
-         profile: large
+    postgres:
+      storage: 1000G
+      profile: large

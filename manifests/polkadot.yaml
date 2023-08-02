@@ -18,6 +18,6 @@ deploy:
 
 scale:
   addons:
-     postgres:
-         storage: 500G
-         profile: large
+    postgres:
+      storage: 500G
+      profile: large

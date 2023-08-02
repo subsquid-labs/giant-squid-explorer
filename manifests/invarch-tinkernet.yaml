@@ -1,0 +1,23 @@
+manifestVersion: subsquid.io/v0.1
+name: gs-explorer-invarch-tinkernet
+version: 1
+description: |-
+  Giant Squid Explorer for Invarch Tinkernet chain
+build:
+
+deploy:
+  addons:
+    postgres:
+  processor:
+    env:
+      CHAIN:
+        invarch-tinkernet
+    cmd: [ "node", "lib/processor" ]
+  api:
+    cmd: [ "npx", "squid-graphql-server", "--dumb-cache", "in-memory", "--dumb-cache-ttl", "1000", "--dumb-cache-size", "100", "--dumb-cache-max-age", "1000" ]
+
+scale:
+  addons:
+    postgres:
+      storage: 25G
+      profile: small

@@ -135,6 +135,8 @@ export function getChainConfig(): ProcessorConfig {
       return require('./chains/phala').default
     case 'picasso':
       return require('./chains/picasso').default
+    case 'polymesh':
+      return require('./chains/polymesh').default
     case 'polkadot':
       return require('./chains/polkadot').default
     case 'reef-testnet':

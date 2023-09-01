@@ -4,22 +4,22 @@ import {CounterLevel} from "./_counterLevel"
 
 @Entity_()
 export class ItemsCounter {
-  constructor(props?: Partial<ItemsCounter>) {
-    Object.assign(this, props)
-  }
+    constructor(props?: Partial<ItemsCounter>) {
+        Object.assign(this, props)
+    }
 
-  @PrimaryColumn_()
-  id!: string
+    @PrimaryColumn_()
+    id!: string
 
-  @Index_()
-  @Column_("varchar", {length: 10, nullable: false})
-  type!: ItemType
+    @Index_()
+    @Column_("varchar", {length: 10, nullable: false})
+    type!: ItemType
 
-  @Index_()
-  @Column_("varchar", {length: 6, nullable: false})
-  level!: CounterLevel
+    @Index_()
+    @Column_("varchar", {length: 6, nullable: false})
+    level!: CounterLevel
 
-  @Index_()
-  @Column_("int4", {nullable: false})
-  total!: number
+    @Index_()
+    @Column_("int4", {nullable: false})
+    total!: number
 }

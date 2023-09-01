@@ -1,19 +1,8 @@
 version: '3'
 
 services:
-  db:
-    container_name: caller_squid_db
-    image: postgres:14
-    environment:
-      #      POSTGRES_DB: squid
-      #      POSTGRES_PASSWORD: squid
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASS}
+  cockroach:
+    image: cockroachdb/cockroach:v21.2.9
     ports:
-      - '${DB_PORT}:5432'
-      # command: ["postgres", "-c", "log_statement=all"]
-#    volumes:
-#      - ./data/db:/var/lib/postgresql/data
-    env_file:
-      - .env
+      - '${DB_PORT}:26257'
+    command: ['start-single-node', '--insecure']

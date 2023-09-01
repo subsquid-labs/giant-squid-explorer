@@ -5,54 +5,69 @@ import {Event} from "./event.model"
 
 @Entity_()
 export class Block {
-  constructor(props?: Partial<Block>) {
-    Object.assign(this, props)
-  }
+    constructor(props?: Partial<Block>) {
+        Object.assign(this, props)
+    }
 
-  /**
-   * BlockHeight-blockHash - e.g. 0001812319-0001c
-   */
-  @PrimaryColumn_()
-  id!: string
+    /**
+     * BlockHeight-blockHash - e.g. 0001812319-0001c
+     */
+    @PrimaryColumn_()
+    id!: string
 
-  @Index_()
-  @Column_("int4", {nullable: false})
-  height!: number
+    @Index_()
+    @Column_("int4", {nullable: false})
+    height!: number
 
-  @Index_()
-  @Column_("text", {nullable: false})
-  hash!: string
+    @Index_()
+    @Column_("bytea", {nullable: false})
+    hash!: Uint8Array
 
-  @Column_("text", {nullable: false})
-  parentHash!: string
+    @Column_("bytea", {nullable: false})
+    parentHash!: Uint8Array
 
-  @Index_()
-  @Column_("timestamp with time zone", {nullable: false})
-  timestamp!: Date
+    @Column_("bytea", {nullable: false})
+    stateRoot!: Uint8Array
 
-  @Index_()
-  @Column_("int4", {nullable: false})
-  specVersion!: number
+    @Column_("bytea", {nullable: false})
+    extrinsicsicRoot!: Uint8Array
 
-  @Index_()
-  @Column_("text", {nullable: true})
-  validator!: string | undefined | null
+    @Column_("text", {nullable: false})
+    specName!: string
 
-  @Column_("int4", {nullable: false})
-  extrinsicsCount!: number
+    @Index_()
+    @Column_("int4", {nullable: false})
+    specVersion!: number
 
-  @Column_("int4", {nullable: false})
-  callsCount!: number
+    @Column_("text", {nullable: false})
+    implName!: string
 
-  @Column_("int4", {nullable: false})
-  eventsCount!: number
+    @Column_("int4", {nullable: false})
+    implVersion!: number
 
-  @OneToMany_(() => Extrinsic, e => e.block)
-  extrinsics!: Extrinsic[]
+    @Index_()
+    @Column_("timestamp with time zone", {nullable: false})
+    timestamp!: Date
 
-  @OneToMany_(() => Call, e => e.block)
-  calls!: Call[]
+    @Index_()
+    @Column_("bytea", {nullable: true})
+    validator!: Uint8Array | undefined | null
 
-  @OneToMany_(() => Event, e => e.block)
-  events!: Event[]
+    @Column_("int4", {nullable: false})
+    extrinsicsCount!: number
+
+    @Column_("int4", {nullable: false})
+    callsCount!: number
+
+    @Column_("int4", {nullable: false})
+    eventsCount!: number
+
+    @OneToMany_(() => Extrinsic, e => e.block)
+    extrinsics!: Extrinsic[]
+
+    @OneToMany_(() => Call, e => e.block)
+    calls!: Call[]
+
+    @OneToMany_(() => Event, e => e.block)
+    events!: Event[]
 }

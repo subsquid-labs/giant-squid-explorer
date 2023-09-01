@@ -4,7 +4,7 @@ const config: ProcessorConfig = {
   chainName: 'kusama',
   prefix: 'kusama',
   dataSource: {
-    archive: 'https://kusama.archive.subsquid.io/graphql',
+    archive: 'https://v2.archive.subsquid.io/network/kusama',
     chain: 'wss://kusama-rpc.polkadot.io'
   }
 }

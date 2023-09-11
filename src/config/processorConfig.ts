@@ -5,4 +5,5 @@ export interface ProcessorConfig {
   prefix?: number | string
   dataSource: Parameters<SubstrateProcessor<any>['setDataSource']>[0]
   blockRange?: Parameters<SubstrateProcessor<any>['setBlockRange']>[0]
+  typesBundle?: string | any
 }

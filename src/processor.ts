@@ -32,6 +32,9 @@ const processor = new SubstrateBatchProcessor()
   } as const)
   .includeAllBlocks()
 
+if (CHAIN_CONFIG.typesBundle != null)
+  processor.setTypesBundle(CHAIN_CONFIG.typesBundle)
+
 type CallItem = BatchProcessorCallItem<typeof processor>
 
 processor.run(new TypeormDatabase(), async (ctx) => {

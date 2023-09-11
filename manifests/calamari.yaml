@@ -1,6 +1,6 @@
 manifestVersion: subsquid.io/v0.1
 name: gs-explorer-calamari
-version: 1
+version: 2
 description: |-
   Giant Squid Explorer for Calamari chain
 build:
@@ -19,5 +19,5 @@ deploy:
 scale:
   addons:
     postgres:
-      storage: 50G
+      storage: 100G
       profile: small

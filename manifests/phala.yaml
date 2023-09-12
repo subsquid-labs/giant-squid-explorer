@@ -1,6 +1,6 @@
 manifestVersion: subsquid.io/v0.1
 name: gs-explorer-phala
-version: 2
+version: 1
 description: |-
   Giant Squid Explorer for Phala chain
 build:

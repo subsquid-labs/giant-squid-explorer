@@ -31,7 +31,7 @@
     "@subsquid/substrate-metadata-explorer": "1.0.8",
     "@subsquid/substrate-typegen": "1.4.2",
     "@subsquid/typeorm-codegen": "0.2.2",
-    "@types/node": "16.11.56",
+    "@types/node": "16.18.59",
     "@types/node-ipc": "^9.2.0",
     "@types/uuid": "^8.3.4",
     "prettier": "^2.7.1",

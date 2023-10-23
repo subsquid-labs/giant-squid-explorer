@@ -9,12 +9,24 @@ import {
     SubstrateBatchProcessorFields,
 } from '@subsquid/substrate-processor'
 import {getChainConfig} from './config'
+import {lookupArchive} from '@subsquid/archive-registry'
 
 const CHAIN_CONFIG = getChainConfig()
 
+export function tryLookupArchive(network: string) {
+    try {
+        return lookupArchive(network, {type: 'Substrate', release: 'ArrowSquid'})
+    } catch {
+        return undefined
+    }
+}
+
 export const processor = new SubstrateBatchProcessor()
     //.setBlockRange(CHAIN_CONFIG.blockRange ?? { from: 1_000_000 })
-    .setDataSource(CHAIN_CONFIG.dataSource)
+    .setDataSource({
+        archive: tryLookupArchive(CHAIN_CONFIG.chainName),
+        chain: CHAIN_CONFIG.dataSource.chain,
+    })
     .setFields({
         block: {
             timestamp: true,

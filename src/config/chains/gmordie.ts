@@ -1,12 +1,11 @@
-import { ProcessorConfig } from '../processorConfig'
+import {ProcessorConfig} from '../processorConfig'
 
 const config: ProcessorConfig = {
-  chainName: 'gmordie',
-  prefix: 'gm',
-  dataSource: {
-    archive: 'https://gmordie.archive.subsquid.io/graphql',
-    chain: 'wss://kusama.gmordie.com'
-  }
+    chainName: 'gmordie',
+    prefix: 'gm',
+    dataSource: {
+        chain: 'wss://kusama.gmordie.com',
+    },
 }
 
 export default config

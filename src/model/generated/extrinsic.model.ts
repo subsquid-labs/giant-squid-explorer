@@ -2,64 +2,55 @@ import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, M
 import * as marshal from "./marshal"
 import {Block} from "./block.model"
 import {Call} from "./call.model"
+import {ExtrinsicSignature} from "./_extrinsicSignature"
 import {Event} from "./event.model"
 
 @Entity_()
 export class Extrinsic {
-  constructor(props?: Partial<Extrinsic>) {
-    Object.assign(this, props)
-  }
+    constructor(props?: Partial<Extrinsic>) {
+        Object.assign(this, props)
+    }
 
-  @PrimaryColumn_()
-  id!: string
+    @PrimaryColumn_()
+    id!: string
 
-  @Index_()
-  @ManyToOne_(() => Block, {nullable: true})
-  block!: Block | undefined | null
+    @Index_()
+    @ManyToOne_(() => Block, {nullable: true})
+    block!: Block
 
-  @Index_()
-  @ManyToOne_(() => Call, {nullable: true})
-  mainCall!: Call | undefined | null
+    @Index_()
+    @ManyToOne_(() => Call, {nullable: true})
+    call!: Call
 
-  @OneToMany_(() => Call, e => e.extrinsic)
-  calls!: Call[]
+    @Column_("int4", {nullable: false})
+    index!: number
 
-  @OneToMany_(() => Event, e => e.extrinsic)
-  events!: Event[]
+    @Column_("int4", {nullable: false})
+    version!: number
 
-  @Index_()
-  @Column_("int4", {nullable: true})
-  blockNumber!: number | undefined | null
+    @Column_("jsonb", {transformer: {to: obj => obj == null ? undefined : obj.toJSON(), from: obj => obj == null ? undefined : new ExtrinsicSignature(undefined, obj)}, nullable: true})
+    signature!: ExtrinsicSignature | undefined | null
 
-  @Index_()
-  @Column_("timestamp with time zone", {nullable: true})
-  timestamp!: Date | undefined | null
+    @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: true})
+    tip!: bigint | undefined | null
 
-  @Index_()
-  @Column_("text", {nullable: true})
-  extrinsicHash!: string | undefined | null
+    @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: true})
+    fee!: bigint | undefined | null
 
-  @Column_("int4", {nullable: true})
-  indexInBlock!: number | undefined | null
+    @Index_()
+    @Column_("bool", {nullable: true})
+    success!: boolean | undefined | null
 
-  @Index_()
-  @Column_("int4", {nullable: true})
-  version!: number | undefined | null
+    @Column_("jsonb", {nullable: true})
+    error!: unknown | undefined | null
 
-  @Index_()
-  @Column_("text", {nullable: true})
-  signerPublicKey!: string | undefined | null
+    @Index_()
+    @Column_("bytea", {nullable: false})
+    hash!: Uint8Array
 
-  @Index_()
-  @Column_("bool", {nullable: true})
-  success!: boolean | undefined | null
+    @OneToMany_(() => Call, e => e.extrinsic)
+    calls!: Call[]
 
-  @Column_("text", {nullable: true})
-  error!: string | undefined | null
-
-  @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: true})
-  tip!: bigint | undefined | null
-
-  @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: true})
-  fee!: bigint | undefined | null
+    @OneToMany_(() => Event, e => e.extrinsic)
+    events!: Event[]
 }

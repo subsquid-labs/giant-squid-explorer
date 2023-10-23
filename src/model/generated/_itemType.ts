@@ -1,5 +1,5 @@
 export enum ItemType {
-  Extrinsics = "Extrinsics",
-  Calls = "Calls",
-  Events = "Events",
+    Extrinsics = "Extrinsics",
+    Calls = "Calls",
+    Events = "Events",
 }

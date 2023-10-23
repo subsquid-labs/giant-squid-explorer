@@ -1,11 +1,10 @@
-import { ProcessorConfig } from '../processorConfig'
+import {ProcessorConfig} from '../processorConfig'
 
 const config: ProcessorConfig = {
-  chainName: 'moonbase',
-  dataSource: {
-    archive: 'https://moonbase.archive.subsquid.io/graphql',
-    chain: 'wss://wss.api.moonbase.moonbeam.network'
-  }
+    chainName: 'moonbase',
+    dataSource: {
+        chain: 'wss://wss.api.moonbase.moonbeam.network',
+    },
 }
 
 export default config

@@ -1,13 +1,11 @@
-
-import { ProcessorConfig } from '../processorConfig'
+import {ProcessorConfig} from '../processorConfig'
 
 const config: ProcessorConfig = {
-  chainName: 'khala',
-  prefix: 'khala',
-  dataSource: {
-    archive: 'https://khala.archive.subsquid.io/graphql',
-    chain: 'wss://khala-api.phala.network/ws'
-  }
+    chainName: 'khala',
+    prefix: 'khala',
+    dataSource: {
+        chain: 'wss://khala-api.phala.network/ws',
+    },
 }
 
 export default config

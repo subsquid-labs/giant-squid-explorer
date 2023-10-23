@@ -1,83 +1,106 @@
 type Block @entity {
-  "BlockHeight-blockHash - e.g. 0001812319-0001c"
-  id: ID!
-  height: Int! @index
-  hash: String! @index
-  parentHash: String!
-  timestamp: DateTime! @index
-  specVersion: Int! @index
-  validator: String @index
-  extrinsicsCount: Int!
-  callsCount: Int!
-  eventsCount: Int!
-  extrinsics: [Extrinsic]! @derivedFrom(field: "block")
-  calls: [Call]! @derivedFrom(field: "block")
-  events: [Event]! @derivedFrom(field: "block")
+    "BlockHeight-blockHash - e.g. 0001812319-0001c"
+    id: ID!
+    height: Int! @index
+    hash: Bytes! @index
+    parentHash: Bytes!
+    stateRoot: Bytes!
+    extrinsicsicRoot: Bytes!
+    specName: String!
+    specVersion: Int! @index
+    implName: String!
+    implVersion: Int!
+    timestamp: DateTime! @index
+    validator: Bytes @index
+
+    extrinsicsCount: Int!
+    callsCount: Int!
+    eventsCount: Int!
+
+    extrinsics: [Extrinsic]! @derivedFrom(field: "block") @cardinality(value: 1000)
+    calls: [Call]! @derivedFrom(field: "block") @cardinality(value: 1000)
+    events: [Event]! @derivedFrom(field: "block") @cardinality(value: 1000)
+}
+
+type ExtrinsicSignature {
+    address: JSON
+    signature: JSON
+    signedExtensions: JSON
 }
 
 type Extrinsic @entity {
-  id: ID!
-  block: Block
-  mainCall: Call
-  calls: [Call]! @derivedFrom(field: "extrinsic")
-  events: [Event]! @derivedFrom(field: "extrinsic")
-  blockNumber: Int @index
-  timestamp: DateTime @index
-  extrinsicHash: String @index
-  indexInBlock: Int
-  version: Int @index
-  signerPublicKey: String @index
-  success: Boolean @index
-  error: String
-  tip: BigInt
-  fee: BigInt
+    id: ID!
+
+    block: Block!
+    call: Call!
+
+    index: Int!
+    version: Int!
+    signature: ExtrinsicSignature
+    tip: BigInt
+    fee: BigInt
+    success: Boolean @index
+    error: JSON
+    hash: Bytes! @index
+
+    calls: [Call]! @derivedFrom(field: "extrinsic")
+    events: [Event]! @derivedFrom(field: "extrinsic")
 }
 
-type Event @entity @index(fields: ["id","palletName","eventName"]) {
-  "Event id - e.g. 0000000001-000000-272d6"
-  id: ID!
-  block: Block!
-  blockNumber: Int! @index
-  timestamp: DateTime! @index
-  extrinsicHash: String @index
-  extrinsic: Extrinsic
-  call: Call
-  indexInBlock: Int
-  eventName: String! @index
-  palletName: String! @index
-  argsStr: [String]
+type Call @entity @index(fields: ["id", "pallet", "name"]) {
+    id: ID!
+
+    block: Block!
+    extrinsic: Extrinsic
+    parent: Call
+
+    address: [Int!]!
+    success: Boolean! @index
+    error: JSON
+
+    pallet: String! @index
+    name: String! @index
+
+    args: JSON
+    argsStr: [String]
+
+    subcalls: [Call]! @derivedFrom(field: "parent")
+    events: [Event]! @derivedFrom(field: "call")
 }
 
-type Call @entity @index(fields: ["id","palletName","callName"]) {
-  id: ID!
-  parentId: String @index
-  block: Block!
-  extrinsic: Extrinsic
-  extrinsicHash: String @index
-  blockNumber: Int! @index
-  timestamp: DateTime! @index
-  callName: String! @index
-  palletName: String! @index
-  success: Boolean! @index
-  callerPublicKey: String @index
-  argsStr: [String]
+type Event @entity @index(fields: ["id", "pallet", "name"]) {
+    "Event id - e.g. 0000000001-000000-272d6"
+    id: ID!
+
+    block: Block!
+    extrinsic: Extrinsic
+    call: Call
+
+    index: Int!
+    phase: String!
+
+    pallet: String! @index
+    name: String! @index
+
+    args: JSON
+    argsStr: [String]
 }
 
 enum CounterLevel {
-  Global
-  Pallet
-  Item
+    Global
+    Pallet
+    Item
 }
 
 enum ItemType {
-  Extrinsics
-  Calls
-  Events
+    Extrinsics
+    Calls
+    Events
 }
 
 type ItemsCounter @entity {
-  id: ID!
-  type: ItemType! @index
-  level: CounterLevel! @index
-  total: Int! @index
+    id: ID!
+    type: ItemType! @index
+    level: CounterLevel! @index
+    total: Int! @index
 }

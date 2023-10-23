@@ -1,12 +1,11 @@
-import { ProcessorConfig } from '../processorConfig'
+import {ProcessorConfig} from '../processorConfig'
 
 const config: ProcessorConfig = {
-  chainName: 'shibuya',
-  prefix: 'shibuya',
-  dataSource: {
-    archive: 'https://shibuya.archive.subsquid.io/graphql',
-    chain: 'wss://rpc.shibuya.astar.network'
-  }
+    chainName: 'shibuya',
+    prefix: 'shibuya',
+    dataSource: {
+        chain: 'wss://rpc.shibuya.astar.network',
+    },
 }
 
 export default config

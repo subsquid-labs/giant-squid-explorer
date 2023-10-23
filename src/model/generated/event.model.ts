@@ -1,56 +1,50 @@
-import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, ManyToOne as ManyToOne_, Index as Index_} from "typeorm"
+import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, Index as Index_, ManyToOne as ManyToOne_} from "typeorm"
 import {Block} from "./block.model"
 import {Extrinsic} from "./extrinsic.model"
 import {Call} from "./call.model"
 
-@Index_(["id", "palletName", "eventName"], {unique: false})
+@Index_(["id", "pallet", "name"], {unique: false})
 @Entity_()
 export class Event {
-  constructor(props?: Partial<Event>) {
-    Object.assign(this, props)
-  }
+    constructor(props?: Partial<Event>) {
+        Object.assign(this, props)
+    }
 
-  /**
-   * Event id - e.g. 0000000001-000000-272d6
-   */
-  @PrimaryColumn_()
-  id!: string
+    /**
+     * Event id - e.g. 0000000001-000000-272d6
+     */
+    @PrimaryColumn_()
+    id!: string
 
-  @Index_()
-  @ManyToOne_(() => Block, {nullable: true})
-  block!: Block
+    @Index_()
+    @ManyToOne_(() => Block, {nullable: true})
+    block!: Block
 
-  @Index_()
-  @Column_("int4", {nullable: false})
-  blockNumber!: number
+    @Index_()
+    @ManyToOne_(() => Extrinsic, {nullable: true})
+    extrinsic!: Extrinsic | undefined | null
 
-  @Index_()
-  @Column_("timestamp with time zone", {nullable: false})
-  timestamp!: Date
+    @Index_()
+    @ManyToOne_(() => Call, {nullable: true})
+    call!: Call | undefined | null
 
-  @Index_()
-  @Column_("text", {nullable: true})
-  extrinsicHash!: string | undefined | null
+    @Column_("int4", {nullable: false})
+    index!: number
 
-  @Index_()
-  @ManyToOne_(() => Extrinsic, {nullable: true})
-  extrinsic!: Extrinsic | undefined | null
+    @Column_("text", {nullable: false})
+    phase!: string
 
-  @Index_()
-  @ManyToOne_(() => Call, {nullable: true})
-  call!: Call | undefined | null
+    @Index_()
+    @Column_("text", {nullable: false})
+    pallet!: string
 
-  @Column_("int4", {nullable: true})
-  indexInBlock!: number | undefined | null
+    @Index_()
+    @Column_("text", {nullable: false})
+    name!: string
 
-  @Index_()
-  @Column_("text", {nullable: false})
-  eventName!: string
+    @Column_("jsonb", {nullable: true})
+    args!: unknown | undefined | null
 
-  @Index_()
-  @Column_("text", {nullable: false})
-  palletName!: string
-
-  @Column_("text", {array: true, nullable: true})
-  argsStr!: (string | undefined | null)[] | undefined | null
+    @Column_("text", {array: true, nullable: true})
+    argsStr!: (string | undefined | null)[] | undefined | null
 }

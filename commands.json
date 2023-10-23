@@ -27,17 +27,12 @@
       },
       "migration:generate": {
         "description": "Generate a DB migration matching the TypeORM entities",
-        "deps": ["build", "migration:clean"],
+        "deps": ["build"],
         "cmd": ["squid-typeorm-migration", "generate"]
       },
       "migration:clean": {
         "description": "Clean the migrations folder",
         "cmd": ["npx", "--yes", "rimraf", "./db/migrations/*.js"]
-      },
-      "migration": {
-        "deps": ["build"],
-        "cmd": ["squid-typeorm-migration", "generate"],
-        "hidden": true
       },
       "codegen": {
         "description": "Generate TypeORM entities from the schema file",
@@ -73,9 +68,18 @@
         "cmd": ["npx", "--yes", "npm-check-updates", "--filter=/subsquid/", "--upgrade"],
         "hidden": true
       },
+      "check-updates:all": {
+        "cmd": ["npx", "--yes", "npm-check-updates", "--upgrade"],
+        "hidden": true
+      },
       "bump": {
         "description": "Bump @subsquid packages to the latest versions",
         "deps": ["check-updates"],
+        "cmd": ["npm", "i", "-f"]
+      },
+      "bump:all": {
+        "description": "Bump all packages to the latest versions",
+        "deps": ["check-updates:all"],
         "cmd": ["npm", "i", "-f"]
       },
       "open": {

@@ -32,7 +32,7 @@ type Extrinsic @entity {
     id: ID!
 
     block: Block!
-    # call: Call
+    call: Call!
 
     index: Int!
     version: Int!
@@ -63,6 +63,9 @@ type Call @entity @index(fields: ["id", "pallet", "name"]) {
 
     args: JSON
     argsStr: [String]
+
+    subcalls: [Call]! @derivedFrom(field: "parent")
+    events: [Event]! @derivedFrom(field: "call")
 }
 
 type Event @entity @index(fields: ["id", "pallet", "name"]) {

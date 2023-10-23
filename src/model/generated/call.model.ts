@@ -1,6 +1,7 @@
-import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, Index as Index_, ManyToOne as ManyToOne_} from "typeorm"
+import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, Index as Index_, ManyToOne as ManyToOne_, OneToMany as OneToMany_} from "typeorm"
 import {Block} from "./block.model"
 import {Extrinsic} from "./extrinsic.model"
+import {Event} from "./event.model"
 
 @Index_(["id", "pallet", "name"], {unique: false})
 @Entity_()
@@ -47,4 +48,10 @@ export class Call {
 
     @Column_("text", {array: true, nullable: true})
     argsStr!: (string | undefined | null)[] | undefined | null
+
+    @OneToMany_(() => Call, e => e.parent)
+    subcalls!: Call[]
+
+    @OneToMany_(() => Event, e => e.call)
+    events!: Event[]
 }

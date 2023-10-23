@@ -1,8 +1,8 @@
 import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, ManyToOne as ManyToOne_, Index as Index_, OneToMany as OneToMany_} from "typeorm"
 import * as marshal from "./marshal"
 import {Block} from "./block.model"
-import {ExtrinsicSignature} from "./_extrinsicSignature"
 import {Call} from "./call.model"
+import {ExtrinsicSignature} from "./_extrinsicSignature"
 import {Event} from "./event.model"
 
 @Entity_()
@@ -17,6 +17,10 @@ export class Extrinsic {
     @Index_()
     @ManyToOne_(() => Block, {nullable: true})
     block!: Block
+
+    @Index_()
+    @ManyToOne_(() => Call, {nullable: true})
+    call!: Call
 
     @Column_("int4", {nullable: false})
     index!: number

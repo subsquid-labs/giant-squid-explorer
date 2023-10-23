@@ -5,6 +5,10 @@ import {BlockHeader, Call, Event, Extrinsic, processor, ProcessorContext} from '
 
 processor.run(new TypeormDatabaseWithCache(), async (ctx) => {
     for (const {header: block, calls, events, extrinsics} of ctx.blocks) {
+        ctx.log.debug(
+            `block ${block.height}: extrinsics - ${extrinsics.length}, calls - ${calls.length}, events - ${events.length}`
+        )
+
         await saveBlock(ctx, block)
 
         for (const extrinsic of extrinsics) {
@@ -19,8 +23,6 @@ processor.run(new TypeormDatabaseWithCache(), async (ctx) => {
             await saveEvent(ctx, event)
         }
     }
-
-    await ctx.store.flush()
 })
 
 async function saveBlock(ctx: ProcessorContext<StoreWithCache>, block: BlockHeader) {
@@ -60,8 +62,10 @@ async function saveExtrinsic(ctx: ProcessorContext<StoreWithCache>, extrinsic: E
         tip: extrinsic.tip,
         version: extrinsic.version,
     })
-
     await ctx.store.insert(entity)
+
+    block.extrinsicsCount += 1
+    await ctx.store.upsert(block)
 }
 
 async function saveCall(ctx: ProcessorContext<StoreWithCache>, call: Call) {
@@ -83,8 +87,15 @@ async function saveCall(ctx: ProcessorContext<StoreWithCache>, call: Call) {
         parent,
         success: call.success,
     })
-
     await ctx.store.insert(entity)
+
+    block.callsCount += 1
+    await ctx.store.upsert(block)
+
+    if (call.address.length == 0) {
+        extrinsic.call = entity
+        await ctx.store.upsert(extrinsic)
+    }
 }
 
 async function saveEvent(ctx: ProcessorContext<StoreWithCache>, event: Event) {
@@ -105,6 +116,8 @@ async function saveEvent(ctx: ProcessorContext<StoreWithCache>, event: Event) {
         pallet,
         phase: event.phase,
     })
-
     await ctx.store.insert(entity)
+
+    block.eventsCount += 1
+    await ctx.store.upsert(block)
 }

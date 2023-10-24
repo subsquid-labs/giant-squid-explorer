@@ -5,7 +5,7 @@ const config: ProcessorConfig = {
   prefix: 'efinity',
   dataSource: {
     archive: 'https://efinity.archive.subsquid.io/graphql',
-    chain: 'wss://rpc.efinity.io'
+    chain: 'wss://archive.matrix.blockchain.enjin.io'
   }
 }
 

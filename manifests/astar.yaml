@@ -1,6 +1,6 @@
 manifestVersion: subsquid.io/v0.1
 name: gs-explorer-astar
-version: 1
+version: 2
 description: |-
   Giant Squid Explorer for Astar chain
 build:

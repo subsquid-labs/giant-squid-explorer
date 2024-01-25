@@ -49,6 +49,7 @@ npm ci
 
 ```bash
 sqd build
+sqd up
 sqd migration:apply
 sqd run . -m manifests/<your_network_name>.yaml
 ```

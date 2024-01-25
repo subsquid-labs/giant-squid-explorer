@@ -69,6 +69,10 @@ GraphiQL playground will be available at [http://localhost:4350/graphql](http://
    error, change the squid name at `manifests/<your_network_name>.yaml` and retry.
 4. Once the deployment is complete you'll be able to get an endpoint URL in the [Subsquid Cloud app](https://app.subsquid.io)
 
+### Self-hosting
+
+See [this page](https://docs.subsquid.io/sdk/resources/basics/self-hosting/).
+
 ## Troubleshooting
 
 ### Custom migration with GIN indexes for args fields
